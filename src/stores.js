@@ -1,29 +1,23 @@
 import { writable } from 'svelte/store'
 
 function createJson() {
-    const { subscribe, update} = writable([])
+    const { subscribe, set} = writable([])
 
     return {
         subscribe,
-        add: (id) => update(n => [...n, {'id': id, 'name': '', 'value': ''}]),
-        edit: (id, name, value) => update(n => {
-            for(let i=0; i <= n.length; i++) {
-                let field = n[i]
-                if (field && field.id == id) {
-                    field.name = name
-                    field.value = value
-                }
-            }
-        }),
-        del: (id) => update(n => {
-            for(let i=0; i <= n.length; i++) {
-                let field = n[i]
-                if (n[i].id == id) {
-                    n.pop(field)
-                }
-            }
-        })
+        add: (json) => set(json),
     }
 }   
 
 export const j = createJson()
+
+function createS() {
+    const { subscribe, update} = writable(0)
+
+    return {
+        subscribe,
+        edit: () => update(n => n + 1),
+    }
+}   
+
+export const s = createS()

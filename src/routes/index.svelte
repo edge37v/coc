@@ -1,85 +1,103 @@
 <script>
-  import {
-    Content,
-    Breadcrumb,
-    BreadcrumbItem,
-    Grid,
-    Row,
-    Column,
-    Tabs,
-    TabContent,
-    Tab,
-    Select,
-    SelectItem,
-  } from "carbon-components-svelte";
+    import {
+        PaginationNav,
+        TabContent,
+        ComboBox,
+        Column,
+        Search,
+        Form,
+        Tabs,
+        Tab, 
+        Row,
+    } from 'carbon-components-svelte'
+    import * as api from 'api'
 
-  import { getContext } from "svelte";
+    $: gl(ql)
 
-  const { carbon_theme } = getContext("Theme");
+    let filters = {}
+    let services = []
+    let products = []
+    let locations = []
+    let location
+    let s_total
+    let p_total
+    let users = []
+    let s_page = 0
+    let p_page = 0
+    let res
+    let ql = ''
+    let q
+
+    let gl = async function() {
+        res = await api.get(`locations?q=${ql}`)
+        locations = res.locations
+    }
+
+    let search = async function() {
+        res = await api.get(`search?q=${q}&location=${ql}&s_page=${s_page+1}&p_page=${p_page+1}`)
+        users = res.users
+        services = res.services
+        products = res.products
+        s_total = services.total
+        p_total = products.total
+    }
 </script>
 
 <Row>
-  <Column lg="{16}">
-    <Breadcrumb noTrailingSlash aria-label="Page navigation">
-      <BreadcrumbItem href="/">Getting started</BreadcrumbItem>
-    </Breadcrumb>
-    <h1 style="margin-bottom: 1.5rem">Design &amp; build with Carbon</h1>
-  </Column>
+    <Form on:submit={search}>
+        <Search
+        bind:value={q} />
+    </Form>
+</Row>
+<p>{ql}</p>
+<Row>
+    <ComboBox
+            bind:value={ql}
+            placeholder='Location'
+            items={locations}/>
 </Row>
 
-<Row>
-  <Column noGutter>
-    <Tabs aria-label="Tab navigation">
-      <Tab label="About" />
-      <Tab label="Design" />
-      <Tab label="Develop" />
-      <div slot="content" class="tabbed-content">
-        <Grid as fullWidth let:props>
-          <TabContent {...props}>
-            <Row>
-              <Column md="{4}" lg="{7}">
-                <Select
-                  labelText="Carbon theme"
-                  bind:selected="{$carbon_theme}"
-                  style="margin-bottom: 1rem"
-                >
-                  <SelectItem value="white" text="White" />
-                  <SelectItem value="g10" text="Gray 10" />
-                  <SelectItem value="g90" text="Gray 90" />
-                  <SelectItem value="g100" text="Gray 100" />
-                </Select>
-                <p>
-                  Carbon is IBM’s open-source design system for digital products
-                  and experiences. With the IBM Design Language as its
-                  foundation, the system consists of working code, design tools
-                  and resources, human interface guidelines, and a vibrant
-                  community of contributors.
-                </p>
-              </Column>
+<Tabs>
+    <Tab>Services</Tab>
+    <Tab>Products</Tab>
+    <div slot='content'>
+        <TabContent>
+            <Row class="service-list">
+                <Column>
+                {#if services !== 'null'}
+                  {#each services as service (service.id)}
+                      <p>
+                          <a href='service' on:click={`$service = service`}>{service.name}</a>
+                          <Row>
+                                <Column>{service.subject}</Column>
+                                <Column>{service.year}</Column>
+                          </Row>
+                      </p>
+                  {/each}
+                {:else}
+                      <p>There are no results for that search query</p>
+                {/if}
+                </Column>
             </Row>
-          </TabContent>
-          <TabContent {...props}>
-            <Row>
-              <Column md="{4}" lg="{7}">
-                <p>
-                  Rapidly build beautiful and accessible experiences. The Carbon
-                  kit contains all resources you need to get started.
-                </p>
-              </Column>
+            <PaginationNav page={s_page} loop total={p_total} />
+        </TabContent>
+        <TabContent>
+            <Row class="product-list">
+                <Column>
+                {#if products !== 'null'}
+                  {#each products as product (product.id)}
+                      <p>
+                          <a href='product' on:click={`$product = product`}>{product.name}</a>
+                      </p>
+                  {/each}
+                {:else}
+                      <p>There are no results for that search query</p>
+                {/if}
+                </Column>
             </Row>
-          </TabContent>
-          <TabContent {...props}>
-            <Row>
-              <Column md="{4}" lg="{7}">
-                <p>
-                  Carbon provides styles and components in Vanilla, React,
-                  Angular, Vue and Svelte for anyone building on the web.
-                </p>
-              </Column>
-            </Row>
-          </TabContent>
-        </Grid>
-      </div>
-    </Tabs>
-  </Column>
-</Row>
+            <PaginationNav page={p_page} loop total={p_total} />
+        </TabContent>
+    </div>
+</Tabs>
+
+

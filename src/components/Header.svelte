@@ -1,9 +1,9 @@
 <script>
+  import { stores } from '@sapper/app'
   import {
     SkipToContent,
     Header,
     HeaderUtilities,
-    HeaderGlobalAction,
     HeaderAction,
     HeaderPanelLinks,
     HeaderPanelLink
@@ -11,6 +11,8 @@
   import { getContext } from "svelte"
 
   const ctx = getContext("Theme")
+  const { session } = stores()
+  const user = $session.user
   let isOpen = false
   let ebp = false
 
@@ -25,19 +27,21 @@
   }
 </script>
 
-<Header expandedByDefault={ebp} company="MarketLinks" href="/">
+<Header expandedByDefault={ebp} company="MarketLinks" platFormName='' href="/">
   <div slot="skip-to-content">
     <SkipToContent />
   </div>
   <HeaderUtilities>
     <HeaderAction>
       <HeaderPanelLinks>
-        <HeaderPanelLink href='user'>
+        {#if user}
+        <HeaderPanelLink href='user/{user.id}'>
           Profile
         </HeaderPanelLink>
-        <HeaderPanelLink href='/logout'>
+        <HeaderPanelLink href='/auth/logout'>
           Logout
         </HeaderPanelLink>
+        {/if}
       </HeaderPanelLinks>
     </HeaderAction>
   </HeaderUtilities>

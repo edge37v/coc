@@ -27,7 +27,7 @@ export default polka()
     sirv("static", { dev: NODE_ENV === "development" }),
     sapper.middleware({
       session: req => ({
-          user: req.session && req.session.user
+          user: req.session.user
         })
     })
   )

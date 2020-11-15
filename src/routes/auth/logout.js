@@ -1,5 +1,5 @@
 import * as api from 'api'
-export function post(req, res) {
-    api.del('tokens', req.session.user.token)
+export async function post(req) {
+    await api.del(`tokens?id=${req.session.user.id}`, req.session.user.token)
     delete req.session.user
 }
