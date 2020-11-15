@@ -1,23 +1,12 @@
 import { writable } from 'svelte/store'
 
-function createJson() {
+function createQ() {
     const { subscribe, set} = writable([])
 
     return {
         subscribe,
-        add: (json) => set(json),
+        set: (q) => set(q),
     }
 }   
 
-export const j = createJson()
-
-function createS() {
-    const { subscribe, update} = writable(0)
-
-    return {
-        subscribe,
-        edit: () => update(n => n + 1),
-    }
-}   
-
-export const s = createS()
+export const j = createQ()

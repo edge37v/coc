@@ -1,6 +1,7 @@
 <script>
     import {
         PaginationNav,
+        DataTable,
         TabContent,
         ComboBox,
         Column,
@@ -15,8 +16,11 @@
     $: gl(ql)
 
     let filters = {}
-    let services = []
-    let products = []
+    let services = {}
+    let products = {}
+    let headers = [
+        {key: 'name', value: 'Name'}]
+    let srows = []
     let locations = []
     let location
     let s_total
@@ -28,6 +32,9 @@
     let ql = ''
     let q
 
+    services.data = []
+    products.data = []
+
     let gl = async function() {
         res = await api.get(`locations?q=${ql}`)
         locations = res.locations
@@ -35,11 +42,13 @@
 
     let search = async function() {
         res = await api.get(`search?q=${q}&location=${ql}&s_page=${s_page+1}&p_page=${p_page+1}`)
-        users = res.users
         services = res.services
         products = res.products
-        s_total = services.total
-        p_total = products.total
+        s_total = res.services.meta.total_items
+        users = res.users
+        for (let i=0; i<s_total; i++)  {
+            let service = res.services.data[i]
+            srows = [...srows, {id: service.id, name: service.name}]}
     }
 </script>
 
@@ -62,32 +71,22 @@
     <Tab>Products</Tab>
     <div slot='content'>
         <TabContent>
-            <Row class="service-list">
-                <Column>
                 {#if services !== 'null'}
-                  {#each services as service (service.id)}
-                      <p>
-                          <a href='service' on:click={`$service = service`}>{service.name}</a>
-                          <Row>
-                                <Column>{service.subject}</Column>
-                                <Column>{service.year}</Column>
-                          </Row>
-                      </p>
-                  {/each}
+                    {#each services.data as service}
+                        <p><a href='service/{service.id}'>{service.name}</a>: <a href='user/{service.user.id}'>{service.user.name}</a></p>
+                    {/each}
                 {:else}
                       <p>There are no results for that search query</p>
                 {/if}
-                </Column>
-            </Row>
-            <PaginationNav page={s_page} loop total={p_total} />
+            <PaginationNav page={s_page} loop total={s_total} />
         </TabContent>
         <TabContent>
             <Row class="product-list">
                 <Column>
                 {#if products !== 'null'}
-                  {#each products as product (product.id)}
+                  {#each products.data as product (product.id)}
                       <p>
-                          <a href='product' on:click={`$product = product`}>{product.name}</a>
+                          <a href='product'>{product.name}</a>
                       </p>
                   {/each}
                 {:else}
@@ -99,5 +98,8 @@
         </TabContent>
     </div>
 </Tabs>
+
+<style></style>
+
 
 
