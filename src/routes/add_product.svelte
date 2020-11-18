@@ -1,34 +1,36 @@
 <script context="module">
-    export async function preload({ params }, { user }) {
+    export async function preload({ path }, { user }) {
         if (!user) {
-            this.redirect(302, 'login');
+            this.redirect(302, `login?path=${path}`);
         }
         return { user }
     }
 </script>
-    
+
 <script>
-    import { goto } from '@sapper/app';
-    import ListErrors from '../components/ListErrors.svelte';
-    import * as api from 'api.js';
-    import { Row, Column, Link, Form, TextInput, Button } from 'carbon-components-svelte';
-
     export let user
-    let errors;
 
-    let name;
-    let email;
-    let phone;
-    let website
-    let password;
+    import * as api from 'api'
+    import { goto } from '@sapper/app'
+    import { Row, Column, Button, TextInput} from 'carbon-components-svelte'
 
-    async function edit() {
-        const id = user.id
-        const res = await api.post('products');
-        errors = res.errors;
+    let json = []
+    let fields
+    let name
+    let res
 
+    let addfield = function() {
+        json = [...json, {'name': '', 'value': ''}]
+    }
+
+    let add = async function() {
+        let id = user.id
+        console.log(id)
+        let token = user.token
+        let data = { id, name, json }
+        res = await api.post('products', data, token)
         if (res.product) {
-            goto('/')
+            goto(`product/${res.product.id}`)
         }
     }
 </script>
@@ -37,12 +39,17 @@
     <title>Add Product</title>
 </svelte:head>
 
-<Row class="add-product">
+<Row>
     <Column>
-    <Form>
-        <ListErrors {errors} />
-        <TextInput placeholder="Name" bind:value={name} />
-        <Button on:click={edit}>Add</Button>
-    </Form>
-</Column>
+        <TextInput labelText="Name" bind:value={name} />
+        {#each json as field}
+        <Row>
+        <Column><TextInput placeholder='Field Name' bind:value={field.name} /></Column>
+        <Column><TextInput placeholder='Field Value' bind:value={field.value} /></Column>
+        </Row>
+        {/each}
+    </Column>
 </Row>
+
+<Button on:click={addfield}>Add Field</Button>
+<Button on:click={add}>Add</Button>

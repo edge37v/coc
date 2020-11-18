@@ -33,7 +33,7 @@
 
         if (res.user) {
             $session.user = res.user
-            goto(`user/${user.id}`)
+            goto(`${user.id}`)
         }
     }
 </script>

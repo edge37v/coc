@@ -6,12 +6,14 @@
         ComboBox,
         Column,
         Search,
+        Link,
         Form,
         Tabs,
         Tab, 
         Row,
     } from 'carbon-components-svelte'
     import * as api from 'api'
+    import { globalQuery } from '../stores.js'
 
     $: gl(ql)
 
@@ -23,14 +25,15 @@
     let srows = []
     let locations = []
     let location
-    let s_total
-    let p_total
+    let empty = false
+    let s_total = 0
+    let p_total = 0
     let users = []
     let s_page = 0
     let p_page = 0
     let res
     let ql = ''
-    let q
+
 
     services.data = []
     products.data = []
@@ -41,10 +44,11 @@
     }
 
     let search = async function() {
-        res = await api.get(`search?q=${q}&location=${ql}&s_page=${s_page+1}&p_page=${p_page+1}`)
+        res = await api.get(`search?q=${$globalQuery}&location=${ql}&s_page=${s_page+1}&p_page=${p_page+1}`)
         services = res.services
         products = res.products
         s_total = res.services.meta.total_items
+        if (s_total < 1) empty = true
         users = res.users
         for (let i=0; i<s_total; i++)  {
             let service = res.services.data[i]
@@ -52,52 +56,50 @@
     }
 </script>
 
-<Row>
-    <Form on:submit={search}>
-        <Search
-        bind:value={q} />
-    </Form>
-</Row>
-<p>{ql}</p>
-<Row>
+<Form on:submit={search}>
+    <Search
+    bind:value={$globalQuery} />
+</Form>
+
+<!--<Row>
     <ComboBox
             bind:value={ql}
             placeholder='Location'
             items={locations}/>
-</Row>
+</Row>-->
 
+{#if res}
 <Tabs>
     <Tab>Services</Tab>
     <Tab>Products</Tab>
     <div slot='content'>
         <TabContent>
-                {#if services !== 'null'}
-                    {#each services.data as service}
-                        <p><a href='service/{service.id}'>{service.name}</a>: <a href='user/{service.user.id}'>{service.user.name}</a></p>
-                    {/each}
-                {:else}
-                      <p>There are no results for that search query</p>
-                {/if}
+            {#if services.data !== []}
+                {#each services.data as service}
+                    <div><Link href='service/{service.id}'>{service.name}</Link>: <Link href='user/{service.user.id}'>{service.user.name}</Link></div>
+                {/each}
+            {:else if empty==true}
+                    <p>There are no results for that query</p>
+            {/if}
+            {#if s_total>37}
             <PaginationNav page={s_page} loop total={s_total} />
+            {/if}
         </TabContent>
         <TabContent>
-            <Row class="product-list">
-                <Column>
-                {#if products !== 'null'}
-                  {#each products.data as product (product.id)}
-                      <p>
-                          <a href='product'>{product.name}</a>
-                      </p>
-                  {/each}
-                {:else}
-                      <p>There are no results for that search query</p>
-                {/if}
-                </Column>
-            </Row>
+            {#if products !== 'null'}
+                {#each products.data as product}
+                    <div><Link href='product/{product.id}'>{product.name}</Link>: <Link href='user/{product.user.id}'>{product.user.name}</Link></div>
+                {/each}
+            {:else}
+                    <p>There are no results for that search query</p>
+            {/if}
+            {#if p_total>37}
             <PaginationNav page={p_page} loop total={p_total} />
+            {/if}
         </TabContent>
     </div>
 </Tabs>
+{/if}
 
 <style></style>
 

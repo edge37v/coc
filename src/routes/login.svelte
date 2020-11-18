@@ -3,14 +3,10 @@
         if (user) {
             this.redirect(302, '/');
         }
-        let path = query.path
-        return path
     }
 </script>
     
 <script>
-    export let path
-
     import { Row, Column, Link, Form, Button, TextInput } from 'carbon-components-svelte';
     import ListErrors from '../components/ListErrors.svelte';
     import { goto, stores } from '@sapper/app';
@@ -18,6 +14,7 @@
 
     const { session } = stores();
 
+    let to
     let email = '';
     let password = '';
     let errors = null;
@@ -27,7 +24,7 @@
         errors = r.errors
         if (r.user) {
             $session.user = r.user
-            goto(path)
+            goto('/')
         }
     }
 </script>
