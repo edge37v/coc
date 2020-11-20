@@ -2,22 +2,21 @@
     import * as api from 'api'
     export async function preload(page) {
         let id = page.params.id
-        let service = await api.get(`services/${id}`)
-        return { service }
+        let s_class = await api.get(`s_classes/${id}`)
+        return { s_class }
     }
 </script>
 
 <script>
-    export let service
+    export let s_class
 </script>
 
-<h1>{service.name}</h1>
-<p>{service.about}</p>
-<h2>Prices</h2>
-<p>Paid for in: {service.paid_in}</p>
+<h1>{s_class.name}</h1>
+<p>{s_class.about}</p>
+<p>Paid for in: {s_class.paid_in}</p>
 
 <br />
-{#each service.json as field}
+{#each s_class.json as field}
     <div>
         <span>{field.name}: </span>
         <span>{field.value}</span>

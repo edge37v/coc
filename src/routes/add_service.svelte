@@ -12,17 +12,33 @@
 
     import * as api from 'api'
     import { goto } from '@sapper/app'
-    import { Row, Column, Button, TextInput} from 'carbon-components-svelte'
+    import { Row, Column, Button, TextInput, ButtonSet, FluidForm, ComboBox} from 'carbon-components-svelte'
 
     let json = [{'name': '', 'value': ''}]
-    let prices = [{'name': '', 'value': ''}]
-    let about
-    let currency
+    let fields = []
     let name
+    let s_class_id
+    let about
+    let price
+    let paid_in
     let res
+    let s_class
+    let s_classes
+    let token = user.token
 
-    let addprice = function() {
-        prices = [...prices, {'name': '', 'value': ''}]
+    $: get_s_classes(s_class)
+    $: get_s_class_fields(s_class_id)
+
+    let get_s_class_fields  = async function() {
+        let res = await api.get(`s_classes/get_fields?id=${s_class_id}`, token)
+        fields = []
+        for (let field in res) {
+            fields  = [...fields, {name: field, value: ''}]
+        }
+    }
+
+    let get_s_classes = async function() {
+        s_classes = await api.get(`s_classes/search?q=${s_class}`, token)
     }
 
     let addfield = function() {
@@ -33,7 +49,7 @@
         let id = user.id
         console.log(id)
         let token = user.token
-        let data = { id, name, json, about, prices, currency }
+        let data = { json, name, s_class_id, about, price, paid_in }
         res = await api.post('services', data, token);
         if (res.service) {
             goto(`service/${res.service.id}`)
@@ -45,30 +61,40 @@
     <title>Add Service</title>
 </svelte:head>
 
-<Row>
+<FluidForm>
+    <Row>
+    <Column><p>Service Class: </p></Column>
     <Column>
-        <TextInput labelText="Name" bind:value={name} />
-        <TextInput labelText="About" bind:value={about} />
-        <TextInput labelText="Currency" bind:value={currency} />
-        <h1>Prices</h1>
-        {#each json as field}
-        <Row>
-        <Column><TextInput placeholder='Field Name' bind:value={field.name} /></Column>
-        <Column><TextInput placeholder='Field Value' bind:value={field.value} /></Column>
-        </Row>
-        {/each}
-        <Button on:click={addprice}>Add Price</Button>
-
-        <h1>Custom Fields</h1>
-        {#each json as field}
-        <Row>
-        <Column><TextInput placeholder='Field Name' bind:value={field.name} /></Column>
-        <Column><TextInput placeholder='Field Value' bind:value={field.value} /></Column>
-        </Row>
-        {/each}
-        <Button on:click={addfield}>Add Field</Button>
+        <ComboBox
+            items={s_classes}
+            bind:selectedIndex={s_class_id}
+            bind:value={s_class}/>
     </Column>
-</Row>
+    </Row>
+    <TextInput labelText="Name" bind:value={name} />
+    <TextInput labelText="About" bind:value={about} />
+    <TextInput labelText="Price" bind:value={price} />
+    <TextInput labelText="Currency" bind:value={paid_in} />
 
+    <br/>
 
+    <p>Fields</p>
+    {#each fields as field}
+    <Row>
+    <Column><TextInput labeltext={field.name} bind:value={field.value} /></Column>
+    </Row>
+    {/each}
+
+    <h1>Custom Fields</h1>
+    {#each json as field}
+    <Row>
+    <Column><TextInput placeholder='Field Name' bind:value={field.name} /></Column>
+    <Column><TextInput placeholder='Field Value' bind:value={field.value} /></Column>
+    </Row>
+    {/each}
+</FluidForm>
+
+<ButtonSet stacked>
+<Button on:click={addfield}>Add Field</Button>
 <Button on:click={add}>Add</Button>
+</ButtonSet>

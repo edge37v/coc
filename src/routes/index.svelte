@@ -7,22 +7,42 @@
         Column,
         Search,
         Link,
-        Form,
+        FluidForm,
+        Button,
         Tabs,
         Tab, 
         Row,
+Toolbar,
+ToolbarBatchActions,
+ToolbarContent,
+ToolbarSearch,
+ToolbarMenu,
+ToolbarMenuItem,
     } from 'carbon-components-svelte'
+    import { stores } from '@sapper/app'
+    import Save16 from 'carbon-icons-svelte/lib/Save16'
+    import Archive16 from 'carbon-icons-svelte/lib/Archive16'
+    import Delete16 from 'carbon-icons-svelte/lib/Delete16'
     import * as api from 'api'
     import { globalQuery } from '../stores.js'
 
+    const { session } = stores()
+    const user = $session.user
+
+    const headers = [
+        { key: 'name', value: 'Name'},
+        { key: 'user', value: 'User'},
+        { key: 'save', empty: true}
+    ]
+
     $: gl(ql)
 
+    let selectedRowIds = []
+    let s_toolbarSearch
     let filters = {}
     let services = {}
     let products = {}
-    let headers = [
-        {key: 'name', value: 'Name'}]
-    let srows = []
+    let s_rows = []
     let locations = []
     let location
     let empty = false
@@ -33,33 +53,51 @@
     let p_page = 0
     let res
     let ql = ''
-
+    let ids
 
     services.data = []
     products.data = []
+    
+    function handleKeydown(event) {
+        if (event.keyCode === 13) {
+            event.preventDefault()
+            if (s_toolbarSearch.hasFocus()) {
+                s_search()
+            }
+        }
+    }
 
     let gl = async function() {
         res = await api.get(`locations?q=${ql}`)
         locations = res.locations
     }
 
-    let search = async function() {
+    let save = async function(id) {
+        let token = user.token
+        await api.put(`services/save/${id}`, token)
+    }
+
+    let archive = async function(id) {
+        let token = user.token
+        await api.del(`services/archive/${id}`, token) 
+    }
+
+    let del = async function(id) {
+        let token = user.token
+        await api.del(`services/archive/${id}`, token) 
+    }
+
+    let s_search = async function() {
         res = await api.get(`search?q=${$globalQuery}&location=${ql}&s_page=${s_page+1}&p_page=${p_page+1}`)
-        services = res.services
-        products = res.products
-        s_total = res.services.meta.total_items
+        s_total = res.meta.total_items
         if (s_total < 1) empty = true
-        users = res.users
         for (let i=0; i<s_total; i++)  {
-            let service = res.services.data[i]
-            srows = [...srows, {id: service.id, name: service.name}]}
+            let service = res.data[i]
+            s_rows = [...s_rows, {id: service.id, name: service.name}]}
     }
 </script>
 
-<Form on:submit={search}>
-    <Search
-    bind:value={$globalQuery} />
-</Form>
+<svelte:window on:keydown={handleKeydown}/>
 
 <!--<Row>
     <ComboBox
@@ -68,40 +106,88 @@
             items={locations}/>
 </Row>-->
 
-{#if res}
 <Tabs>
     <Tab>Services</Tab>
     <Tab>Products</Tab>
     <div slot='content'>
         <TabContent>
-            {#if services.data !== []}
-                {#each services.data as service}
-                    <div><Link href='service/{service.id}'>{service.name}</Link>: <Link href='user/{service.user.id}'>{service.user.name}</Link></div>
-                {/each}
-            {:else if empty==true}
+            <DataTable title='Total results: {s_total}' batchSelection bind:selectedRowIds {headers} rows={s_rows}>
+                <span slot='cell' let:row let:cell>
+                    {#if cell.key === 'name'}
+                        <Link
+                            inline
+                            href='service/{row.id}'
+                        >
+                            {cell.value}
+                        </Link>
+                    {:else}{cell.value}{/if}
+                </span>
+                <span slot='cell' let:cell>
+                    {#if cell.key === 'save'}
+                        <Button hasIconOnly icon={Save16}/>
+                    {:else}{cell.value}{/if}
+                </span>
+                <Toolbar>
+                    <ToolbarBatchActions>
+                        <Button on:click={save}>Save</Button>
+                    </ToolbarBatchActions>
+                    <ToolbarContent>
+                        <ToolbarSearch bind:ref={s_toolbarSearch} bind:value={$globalQuery}/>
+                        <ToolbarMenu>
+                            <ToolbarMenuItem>
+                                Set All
+                            </ToolbarMenuItem>
+                        </ToolbarMenu>
+                    </ToolbarContent>
+                </Toolbar>
+            </DataTable>
+            {#if s_total>37}
+            <PaginationNav page={s_page} loop total={s_total} />
+            {/if}
+        </TabContent>
+        <TabContent>
+            {#if empty===true}
+            <p>Total items: {s_total}</p>
+            {/if}
+            {#each services.data as service}
+                <div><Link href='service/{service.id}'>{service.name}</Link>: <Link href='user/{service.user.id}'>{service.user.name}</Link></div>
+                <Button 
+                    kind='ghost' 
+                    icon={Save16} 
+                    on:click={save(service.id)}
+                    toolTipPosition='bottom'
+                    toolTipAlignment='center'
+                    iconDescription='Save'/>
+                {#if user}
+                {#if service.user.id == user.id}
+                <Button 
+                    kind='ghost' 
+                    icon={Save16} 
+                    hasIconOnly 
+                    on:click={archive(service.id)}
+                    toolTipPosition='bottom'
+                    toolTipAlignment='center'
+                    iconDescription='Archive'/>
+                <Button 
+                    kind='ghost' 
+                    icon={Save16} 
+                    hasIconOnly 
+                    on:click={del(service.id)}
+                    toolTipPosition='bottom'
+                    toolTipAlignment='center'
+                    iconDescription='Delete'/>
+                {/if}
+                {/if}
+            {/each}
+            {#if empty===true}
                     <p>There are no results for that query</p>
             {/if}
             {#if s_total>37}
             <PaginationNav page={s_page} loop total={s_total} />
             {/if}
         </TabContent>
-        <TabContent>
-            {#if products !== 'null'}
-                {#each products.data as product}
-                    <div><Link href='product/{product.id}'>{product.name}</Link>: <Link href='user/{product.user.id}'>{product.user.name}</Link></div>
-                {/each}
-            {:else}
-                    <p>There are no results for that search query</p>
-            {/if}
-            {#if p_total>37}
-            <PaginationNav page={p_page} loop total={p_total} />
-            {/if}
-        </TabContent>
     </div>
 </Tabs>
-{/if}
-
-<style></style>
 
 
 

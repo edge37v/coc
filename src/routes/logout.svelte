@@ -1,10 +1,8 @@
 <script>
     import { post } from 'utils'
-    import { onMount } from 'svelte'
-    import { goto } from '@sapper/app'
-     
-    onMount(() => {
-        post('auth/logout')
-        goto('login')
-    })
+    import { stores, goto } from '@sapper/app'
+    const { session } = stores()
+    $session.user = null
+    post('auth/logout')
+    goto('/')
 </script>

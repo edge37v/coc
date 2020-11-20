@@ -7,7 +7,7 @@
 </script>
     
 <script>
-    import { Row, Column, Link, Form, Button, TextInput } from 'carbon-components-svelte';
+    import { Row, Column, Link, FluidForm, ButtonSet, Button, TextInput } from 'carbon-components-svelte';
     import ListErrors from '../components/ListErrors.svelte';
     import { goto, stores } from '@sapper/app';
     import { post } from 'utils.js';
@@ -35,13 +35,15 @@
 
 <Row class="auth-page">
     <Column>
-    <Form>
+    <FluidForm>
         <p>Log In</p>
         <ListErrors {errors} />
-        <TextInput placeholder='Email' bind:value={email} />
-        <TextInput type='password' placeholder='Password' bind:value="{password}" />
+        <TextInput labelText='Email' bind:value={email} />
+        <TextInput type='password' labelText='Password' bind:value="{password}" />
+    </FluidForm>
+    <ButtonSet stacked>
         <Button on:click={login}>Login</Button>
-    </Form>
-    <Link rel='prefetch' href='join'>Sign Up instead</Link>
+        <Button kind='ghost' rel='prefetch' href='join'>Sign Up</Button>
+    </ButtonSet>
 </Column>
 </Row>

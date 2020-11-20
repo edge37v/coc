@@ -24,8 +24,8 @@
   let ebp = false
 
   let logout = async function() {
-    await post('/auth/logout')
-    $session.user = null
+    await post('auth/logout')
+    $session = null
     goto('/')
   }
 
@@ -40,7 +40,7 @@
   }
 </script>
 
-<Header expandedByDefault=false company="MarketLinks" platformName='' bind:isSideNavOpen href="/">
+<Header expandedByDefault={true} company="MarketLinks" platFluidFormName='' bind:isSideNavOpen href="/">
   <div slot="skip-to-content">
     <SkipToContent />
   </div>
@@ -56,14 +56,16 @@
   <SideNavItems>
     {#if user}
     <SideNavLink text='Profile' href='{user.id}'/>
+    <SideNavLink href='classes/{user.id}' text='Classes'/>
     <SideNavMenu text='Services'>
       <SideNavMenuItem href='add_service' text='Add Service'/>
+      <SideNavMenuItem href='add_s_class' text='Add Service Class'/>
     </SideNavMenu>
     <SideNavMenu text='Products'>
       <SideNavMenuItem href='add_product' text='Add Product'/>
     </SideNavMenu>
     <SideNavLink text='Saved' href='saved/{user.id}'/>
-    <SideNavLink text='Logout' on:click={logout} />
+    <SideNavLink text='Logout' href='' on:click={logout} />
     {/if}
     {#if !user}
     <SideNavLink text='Login' href='login'/>

@@ -11,7 +11,7 @@
     import { goto, stores } from '@sapper/app';
     import ListErrors from '../components/ListErrors.svelte';
     import * as api from 'api.js';
-    import { Row, Column, Link, Form, TextInput, Button } from 'carbon-components-svelte';
+    import { Row, Column, Link, FluidForm, TextInput, Button } from 'carbon-components-svelte';
 
     export let user
     const { session } = stores();
@@ -40,7 +40,7 @@
 
 <Row class="auth-page">
     <Column>
-    <Form>
+    <FluidForm>
         <ListErrors {errors} />
         <TextInput placeholder="Email" bind:value={email} />
         <TextInput placeholder="Name" bind:value={name} />
@@ -48,6 +48,6 @@
         <TextInput placeholder="Website" bind:value={website} />
         <TextInput type='password' placeholder="Password" bind:value={password} />
         <Button on:click={edit}>Edit</Button>
-    </Form>
+    </FluidForm>
 </Column>
 </Row>
