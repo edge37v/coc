@@ -39,6 +39,7 @@ ToolbarMenuItem,
 
     let selectedRowIds = []
     let s_toolbarSearch
+    let s_search_expanded
     let filters = {}
     let services = {}
     let products = {}
@@ -51,17 +52,19 @@ ToolbarMenuItem,
     let users = []
     let s_page = 0
     let p_page = 0
+    let token
     let res
     let ql = ''
     let ids
 
+    if (user) { token = user.token }
     services.data = []
     products.data = []
     
     function handleKeydown(event) {
         if (event.keyCode === 13) {
             event.preventDefault()
-            if (s_toolbarSearch.hasFocus()) {
+            if (s_search_expanded) {
                 s_search()
             }
         }
@@ -72,9 +75,16 @@ ToolbarMenuItem,
         locations = res.locations
     }
 
+    let del = async function(id) {
+        let data = { ids: selectedRowIds }
+        if (id) data.ids = [id]
+        await api.put('s_classes/delete', data, token)
+    }
+
     let save = async function(id) {
-        let token = user.token
-        await api.put(`services/save/${id}`, token)
+        let data = { ids: selectedRowIds }
+        if (id) data.ids = [id]
+        await api.put('services/save', data, token)
     }
 
     let archive = async function(id) {
@@ -82,13 +92,8 @@ ToolbarMenuItem,
         await api.del(`services/archive/${id}`, token) 
     }
 
-    let del = async function(id) {
-        let token = user.token
-        await api.del(`services/archive/${id}`, token) 
-    }
-
     let s_search = async function() {
-        res = await api.get(`search?q=${$globalQuery}&location=${ql}&s_page=${s_page+1}&p_page=${p_page+1}`)
+        res = await api.get(`s_search?q=${$globalQuery}&location=${ql}&s_page=${s_page+1}&p_page=${p_page+1}`)
         s_total = res.meta.total_items
         if (s_total < 1) empty = true
         for (let i=0; i<s_total; i++)  {
@@ -132,12 +137,7 @@ ToolbarMenuItem,
                         <Button on:click={save}>Save</Button>
                     </ToolbarBatchActions>
                     <ToolbarContent>
-                        <ToolbarSearch bind:ref={s_toolbarSearch} bind:value={$globalQuery}/>
-                        <ToolbarMenu>
-                            <ToolbarMenuItem>
-                                Set All
-                            </ToolbarMenuItem>
-                        </ToolbarMenu>
+                        <ToolbarSearch bind:expanded={s_search_expanded} bind:ref={s_toolbarSearch} bind:value={$globalQuery}/>
                     </ToolbarContent>
                 </Toolbar>
             </DataTable>

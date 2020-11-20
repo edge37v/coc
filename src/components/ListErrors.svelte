@@ -1,12 +1,14 @@
 <script>
-    import { UnorderedList, ListItem } from 'carbon-components-svelte';
+    import { InlineNotification } from 'carbon-components-svelte';
     export let errors;
 </script>
 
 {#if errors}
-    <UnorderedList class='errors'>
         {#each errors as error}
-            <ListItem style="color: red">{error}</ListItem>
+            <InlineNotification
+                kind='error'
+                timeout={5}
+                title={error}
+                hideCloseButton/>
         {/each}
-    </UnorderedList>
 {/if}

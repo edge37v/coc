@@ -12,15 +12,15 @@
 
     import * as api from 'api'
     import { goto } from '@sapper/app'
-    import { Row, Column, Button, TextInput, TextArea, FluidForm} from 'carbon-components-svelte'
+    import { Row, Column, Button, ButtonSet, TextInput, TextArea, FluidForm} from 'carbon-components-svelte'
 
+    let s_class
     let json = []
     let fields =  []
     let field_id = 1
     let about
     let paid_in
     let name
-    let res
 
     let addjson = function() {
         json = [...json, {'name': '', 'value': ''}]
@@ -33,7 +33,7 @@
 
     let add = async function() {
         let token = user.token
-        let data = { json, name, fields, paid_in }
+        let data = { json, name, about, fields, paid_in }
         s_class = await api.post('s_classes', data, token);
         if (s_class.id) {
             goto(`s_class/${s_class.id}`)
@@ -65,7 +65,9 @@
     {#each fields as field}
     <TextInput labelText='Field Name' bind:value={field.name} />
     {/each}
-    <Button on:click={addfield}>Add Field</Button>
 </FluidForm>
 
-<Button on:click={add}>Add</Button>
+<ButtonSet stacked>
+    <Button on:click={addfield}>Add Field</Button>
+    <Button on:click={add}>Add</Button>
+</ButtonSet>
