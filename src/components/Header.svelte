@@ -8,11 +8,7 @@
     SideNavMenu,
     SideNavMenuItem,
     SkipToContent,
-    Header,
-    HeaderUtilities,
-    HeaderAction,
-    HeaderPanelLinks,
-    HeaderPanelLink
+    Header
   } from "carbon-components-svelte"
   import { getContext } from "svelte"
 
@@ -20,8 +16,6 @@
   const { session } = stores()
   const user = $session.user
   let isSideNavOpen = false
-  let isOpen = false
-  let ebp = false
 
   let logout = async function() {
     await post(`auth/logout`)
@@ -31,25 +25,19 @@
 
   $: if (ctx) {
     ctx.dark.subscribe((value) => {
-      console.log("dark mode?", value);
+      return
     });
     ctx.light.subscribe((value) => {
-      console.log("light mode?", value);
+      return
     });
     ctx.updateVar("--cds-productive-heading-06-font-size", "4rem");
   }
 </script>
 
-<Header expandedByDefault={true} company="MarketLinks" platFluidFormName='' bind:isSideNavOpen href="/">
+<Header persistentHamburgerMenu expandedByDefault={false} company="MarketLinks" platFluidFormName='' bind:isSideNavOpen href="/">
   <div slot="skip-to-content">
     <SkipToContent />
   </div>
-  <HeaderUtilities>
-    <HeaderAction>
-      <HeaderPanelLinks>        
-      </HeaderPanelLinks>
-    </HeaderAction>
-  </HeaderUtilities>
 </Header>
 
 <SideNav bind:isOpen={isSideNavOpen}>

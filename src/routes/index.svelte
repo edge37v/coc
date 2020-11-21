@@ -18,8 +18,9 @@ ToolbarContent,
 ToolbarSearch,
 ToolbarMenu,
 ToolbarMenuItem,
+Modal,
     } from 'carbon-components-svelte'
-    import { stores } from '@sapper/app'
+    import { stores, goto } from '@sapper/app'
     import Save16 from 'carbon-icons-svelte/lib/Save16'
     import Archive16 from 'carbon-icons-svelte/lib/Archive16'
     import Delete16 from 'carbon-icons-svelte/lib/Delete16'
@@ -31,11 +32,12 @@ ToolbarMenuItem,
 
     const headers = [
         { key: 'name', value: 'Name'},
-        { key: 'user', value: 'User'},
-        { key: 'save', empty: true}
+        { key: 'user', value: 'User'}
     ]
 
     $: gl(ql)
+
+    let loginQueryOpen = false
 
     let selectedRowIds = []
     let s_toolbarSearch
@@ -55,7 +57,6 @@ ToolbarMenuItem,
     let token
     let res
     let ql = ''
-    let ids
 
     if (user) { token = user.token }
     services.data = []
@@ -75,24 +76,17 @@ ToolbarMenuItem,
         locations = res.locations
     }
 
-    let del = async function(id) {
-        let data = { ids: selectedRowIds }
-        if (id) data.ids = [id]
-        await api.put('s_classes/delete', data, token)
-    }
-
     let save = async function() {
+        if ( !user ) {
+            loginQueryOpen = true
+            return
+        }
         let data = { ids: selectedRowIds }
         await api.put('services/save', data, token)
     }
 
-    let archive = async function(id) {
-        let token = user.token
-        await api.del(`services/archive/${id}`, token) 
-    }
-
     let s_search = async function() {
-        res = await api.get(`s_search?q=${$globalQuery}&location=${ql}&s_page=${s_page+1}&p_page=${p_page+1}`)
+        res = await api.get(`services/search?q=${$globalQuery}&location=${ql}&s_page=${s_page+1}&p_page=${p_page+1}`)
         s_total = res.meta.total_items
         if (s_total < 1) empty = true
         for (let i=0; i<s_total; i++)  {
@@ -103,6 +97,19 @@ ToolbarMenuItem,
 
 <svelte:window on:keydown={handleKeydown}/>
 
+<Modal
+    size='sm'
+    preventCloseOnClickOutside
+    bind:open={loginQueryOpen}
+    modalHeading='Must be logged in'
+    primaryButtonText='Log In'
+    secondaryButtonText='Cancel'
+    on:click:button--secondary={() => (loginQueryOpen = false)}
+    on:submit={() => (goto('login'))}
+>
+    <p>That action requires you to be logged in</p>
+</Modal>
+
 <!--<Row>
     <ComboBox
             bind:value={ql}
@@ -112,7 +119,6 @@ ToolbarMenuItem,
 
 <Tabs>
     <Tab>Services</Tab>
-    <Tab>Products</Tab>
     <div slot='content'>
         <TabContent>
             <DataTable title='Total results: {s_total}' batchSelection bind:selectedRowIds {headers} rows={s_rows}>
@@ -126,11 +132,6 @@ ToolbarMenuItem,
                         </Link>
                     {:else}{cell.value}{/if}
                 </span>
-                <span slot='cell' let:cell>
-                    {#if cell.key === 'save'}
-                        <Button hasIconOnly icon={Save16}/>
-                    {:else}{cell.value}{/if}
-                </span>
                 <Toolbar>
                     <ToolbarBatchActions>
                         <Button on:click={save}>Save</Button>
@@ -140,47 +141,6 @@ ToolbarMenuItem,
                     </ToolbarContent>
                 </Toolbar>
             </DataTable>
-            {#if s_total>37}
-            <PaginationNav page={s_page} loop total={s_total} />
-            {/if}
-        </TabContent>
-        <TabContent>
-            {#if empty===true}
-            <p>Total items: {s_total}</p>
-            {/if}
-            {#each services.data as service}
-                <div><Link href='service/{service.id}'>{service.name}</Link>: <Link href='user/{service.user.id}'>{service.user.name}</Link></div>
-                <Button 
-                    kind='ghost' 
-                    icon={Save16} 
-                    on:click={save(service.id)}
-                    toolTipPosition='bottom'
-                    toolTipAlignment='center'
-                    iconDescription='Save'/>
-                {#if user}
-                {#if service.user.id == user.id}
-                <Button 
-                    kind='ghost' 
-                    icon={Save16} 
-                    hasIconOnly 
-                    on:click={archive(service.id)}
-                    toolTipPosition='bottom'
-                    toolTipAlignment='center'
-                    iconDescription='Archive'/>
-                <Button 
-                    kind='ghost' 
-                    icon={Save16} 
-                    hasIconOnly 
-                    on:click={del(service.id)}
-                    toolTipPosition='bottom'
-                    toolTipAlignment='center'
-                    iconDescription='Delete'/>
-                {/if}
-                {/if}
-            {/each}
-            {#if empty===true}
-                    <p>There are no results for that query</p>
-            {/if}
             {#if s_total>37}
             <PaginationNav page={s_page} loop total={s_total} />
             {/if}

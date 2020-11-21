@@ -33,8 +33,6 @@
 
     const headers = [
         { key: 'name', value: 'Name'},
-        { key: 'archive', empty: true},
-        { key: 'delete', empty: true}
     ]
 
     let auth
@@ -56,9 +54,8 @@
 
     let unsave = async function(id) {
         let data = { ids: selectedRowIds }
-        if (id) {
+        if (typeof(id) == 'number') {
             data.ids = [id]
-            console.log(id)
         }
         await api.put('services/unsave', data, token)
     }
