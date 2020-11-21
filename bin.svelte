@@ -8,3 +8,12 @@
         <Button kind='ghost' hasIconOnly on:click={del(row.id)} icon={Delete16}/>
     {:else}{cell.value}{/if}
 </span>
+
+function handleKeydown(event) {
+    if (event.keyCode === 13) {
+        event.preventDefault()
+        if (search.hasFocus()) {
+            s_search()
+        }
+    }
+}

@@ -34,7 +34,13 @@
   }
 </script>
 
-<Header persistentHamburgerMenu expandedByDefault={false} company="MarketLinks" platFluidFormName='' bind:isSideNavOpen href="/">
+<Header 
+  persistentHamburgerMenu={true}
+  company="MarketLinks"
+  platFluidFormName=''
+  bind:isSideNavOpen
+  href='/'
+>
   <div slot="skip-to-content">
     <SkipToContent />
   </div>

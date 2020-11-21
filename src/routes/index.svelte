@@ -7,15 +7,13 @@
         Column,
         Search,
         Link,
-        FluidForm,
+        Form,
         Button,
         Tabs,
         Tab, 
         Row,
 Toolbar,
 ToolbarBatchActions,
-ToolbarContent,
-ToolbarSearch,
 ToolbarMenu,
 ToolbarMenuItem,
 Modal,
@@ -32,8 +30,6 @@ Modal,
         { key: 'name', value: 'Name'},
         { key: 'user', value: 'User'}
     ]
-
-    $: gl(ql)
 
     let loginQueryOpen = false
 
@@ -55,8 +51,6 @@ Modal,
     let options = {
         enableHighAccuracy: true
     }
-
-    const watchID = navigator.geolocation.watchPosition(success, error, options)
 
     let selectedRowIds = []
     let s_toolbarSearch
@@ -80,20 +74,6 @@ Modal,
     if (user) { token = user.token }
     services.data = []
     products.data = []
-    
-    function handleKeydown(event) {
-        if (event.keyCode === 13) {
-            event.preventDefault()
-            if (s_search_expanded) {
-                s_search()
-            }
-        }
-    }
-
-    let gl = async function() {
-        res = await api.get(`locations?q=${ql}`)
-        locations = res.locations
-    }
 
     let save = async function() {
         if ( !user ) {
@@ -104,12 +84,16 @@ Modal,
         await api.put('services/save', data, token)
     }
 
-    let s_search = async function() {
-        let data = {}
-        if ( isPosition ) {
+    let search = async function() {
+        let data = {
+            q: $globalQuery,
+            page: s_page+1
+        }
+        if ( position ) {
             data.position = position
         }
-        res = await api.put(`services/search?q=${$globalQuery}&s_page=${s_page+1}&p_page=${p_page+1}`, data)
+        res = await api.put('services/search', data)
+        console.log(res)
         s_total = res.meta.total_items
         if (s_total < 1) empty = true
         for (let i=0; i<s_total; i++)  {
@@ -117,8 +101,6 @@ Modal,
             s_rows = [...s_rows, {id: service.id, name: service.name}]}
     }
 </script>
-
-<svelte:window on:keydown={handleKeydown}/>
 
 <Modal
     size='sm'
@@ -144,32 +126,31 @@ Modal,
     <Tab>Services</Tab>
     <div slot='content'>
         <TabContent>
-            <DataTable title='Total results: {s_total}' batchSelection bind:selectedRowIds {headers} rows={s_rows}>
-                <span slot='cell' let:row let:cell>
-                    {#if cell.key === 'name'}
-                        <Link
-                            inline
-                            href='service/{row.id}'
-                        >
-                            {cell.value}
-                        </Link>
-                    {:else}{cell.value}{/if}
-                </span>
-                <Toolbar>
-                    <ToolbarBatchActions>
-                        <Button on:click={save}>Save</Button>
-                    </ToolbarBatchActions>
-                    <ToolbarContent>
-                        <ToolbarSearch bind:expanded={s_search_expanded} bind:ref={s_toolbarSearch} bind:value={$globalQuery}/>
-                    </ToolbarContent>
-                </Toolbar>
-            </DataTable>
-            {#if s_total>37}
-            <PaginationNav page={s_page} loop total={s_total} />
+            <Form on:submit={search}>
+                <Search autofocus={true} placeholder='Search services' bind:value={$globalQuery}/>
+            </Form>
+            {#if !empty}
+                <DataTable title='Total results: {s_total}' batchSelection bind:selectedRowIds {headers} rows={s_rows}>
+                    <span slot='cell' let:row let:cell>
+                        {#if cell.key === 'name'}
+                            <Link
+                                inline
+                                href='service/{row.id}'
+                            >
+                                {cell.value}
+                            </Link>
+                        {:else}{cell.value}{/if}
+                    </span>
+                    <Toolbar>
+                        <ToolbarBatchActions>
+                            <Button on:click={save}>Save</Button>
+                        </ToolbarBatchActions>
+                    </Toolbar>
+                </DataTable>
+                {#if s_total>37}
+                <PaginationNav page={s_page} loop total={s_total} />
+                {/if}
             {/if}
         </TabContent>
     </div>
 </Tabs>
-
-
-

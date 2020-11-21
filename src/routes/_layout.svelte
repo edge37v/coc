@@ -1,6 +1,4 @@
 <script>
-  export let segment = undefined;
-
   import {
     Content,
     Breadcrumb,
@@ -19,7 +17,7 @@
 </script>
 
 <Theme persist theme="g100">
-  <Header segment="{segment}" />
+  <Header/>
   <Content style="background: none; padding: 1rem">
     <Grid>
       <slot />

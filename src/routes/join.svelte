@@ -10,6 +10,7 @@
     import { goto, stores } from '@sapper/app';
     import ListErrors from '../components/ListErrors.svelte';
     import { post } from 'utils.js';
+    import ArrowRight16 from 'carbon-icons-svelte/lib/ArrowRight16'
     import { Row, Column, Link, FluidForm, TextInput, ButtonSet, Button, PasswordInput } from 'carbon-components-svelte';
 
     const { session } = stores();
@@ -36,13 +37,15 @@
 <Row class="auth-page">
     <Column>
     <FluidForm>
+        <p>Sign Up</p>
+        <br/>
         <ListErrors {errors} />
-        <TextInput placeholder='password' bind:value={email} />
-        <PasswordInput placeholder="password" bind:value={password} />
+        <TextInput labelText='Email' bind:value={email} />
+        <PasswordInput labelText="password" bind:value={password} />
     </FluidForm>
     <ButtonSet stacked>
-        <Button on:click={join}>Join</Button>
-        <Button kind='ghost' rel='prefetch' href='login'>Log In</Button>
+        <Button icon={ArrowRight16} on:click={join}>Join</Button>
+        <Button kind='ghost' rel='prefetch' href='login'>Log in instead</Button>
     </ButtonSet>
 </Column>
 </Row>
