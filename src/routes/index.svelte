@@ -39,7 +39,7 @@ ToolbarMenuItem,
 
     let selectedRowIds = []
     let s_toolbarSearch
-    let s_search_expanded
+    let s_search_expanded = false
     let filters = {}
     let services = {}
     let products = {}
@@ -81,9 +81,8 @@ ToolbarMenuItem,
         await api.put('s_classes/delete', data, token)
     }
 
-    let save = async function(id) {
+    let save = async function() {
         let data = { ids: selectedRowIds }
-        if (id) data.ids = [id]
         await api.put('services/save', data, token)
     }
 

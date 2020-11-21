@@ -2,14 +2,16 @@
     import * as api from 'api'
     export async function preload(page) {
         let id = page.params.id
+        let self = page.path
         let user = await api.get(`users/${id}`)
-        return { user }
+        return { user, self }
     }
 </script>
 
 <script>
     export let user
-    import { stores } from '@sapper/app' 
+    export let self
+    import { stores, goto } from '@sapper/app' 
     import {
         TabContent,
         DataTable,
@@ -21,6 +23,7 @@
         ToolbarMenuItem,
         ToolbarContent,
         Toolbar,
+        Modal,
         Column,
         Search,
         Grid,
@@ -35,16 +38,13 @@
         { key: 'name', value: 'Name'}
     ]
 
-    let auth
-    const { session } = stores()
-    if ($session.user) { auth = true }
-
     let i
     let sq = ''
     let res
     let s_page = 1
     let s_rows = []
     let s_total
+    let deleteModalOpen = false
     let token = user.token
     let s_toolbarSearch
     let selectedRowIds = []
@@ -52,22 +52,25 @@
 
     $: get_s_classes(sq)
 
-    let del = async function(id) {
+    let del = async function() {
         let data = { ids: selectedRowIds }
-        if (id) data.ids = [id]
+        console.log(data)
         await api.put('s_classes/delete', data, token)
     }
 
     let archive = async function(id) {
         let data = { ids: selectedRowIds }
         if (id) data.ids = [id]
+        console.log(data)
         await api.put('s_classes/archive', data, token)
+        goto(self)
     }
 
     let unarchive = async function(id) {
         let data = { ids: selectedRowIds }
         if (id) data.ids = [id]
         await api.put('s_classes/unarchive', data, token)
+        goto(self)
     }
     
     let get_s_classes = async function() {
@@ -79,6 +82,19 @@
     }
 
 </script>
+
+<Modal
+    preventCloseOnClickOutside
+    bind:open={deleteModalOpen}
+    modalHeading='Delete Service Classes'
+    primaryButtonText='Confirm'
+    secondaryButtonText='Cancel'
+    on:click:button--secondary={() => (deleteModalOpen = false)}
+    on:click:button--primary={() => (deleteModalOpen = false)}
+    on:submit={del}
+>
+    <p>Sure you want to let go of those?</p>
+</Modal>
 
 <Tabs aria-label='Tab navigation'>
     <Tab label='Service Classes'/>
@@ -99,7 +115,7 @@
                     <Toolbar>
                         <ToolbarBatchActions>
                             <Button kind='ghost' on:click={archive}>Archive</Button>
-                            <Button kind='ghost' on:click={del}>Delete</Button>
+                            <Button kind='ghost' on:click={() => (deleteModalOpen = true)}>Delete</Button>
                         </ToolbarBatchActions>
                         <ToolbarContent>
                             <ToolbarSearch bind:ref={s_toolbarSearch} bind:value={sq}/>

@@ -1,5 +1,5 @@
 <script>
-  import { post } from 'utils'
+  import { post } from 'utils.js'
   import { stores, goto } from '@sapper/app'
   import {
     SideNav,
@@ -24,8 +24,8 @@
   let ebp = false
 
   let logout = async function() {
-    await post('auth/logout')
-    $session = null
+    await post(`auth/logout`)
+    $session.user = null
     goto('/')
   }
 

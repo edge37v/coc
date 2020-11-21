@@ -27,7 +27,7 @@
     }
 
     let addfield = function() {
-        fields = [...fields, {'id': field_id, 'name': ''}]
+        fields = [...fields, { id: field_id, name: '' }]
         field_id++
     }
 

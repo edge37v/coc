@@ -10,7 +10,7 @@
     import { goto, stores } from '@sapper/app';
     import ListErrors from '../components/ListErrors.svelte';
     import { post } from 'utils.js';
-    import { Row, Column, Link, FluidForm, TextInput, ButtonSet, Button } from 'carbon-components-svelte';
+    import { Row, Column, Link, FluidForm, TextInput, ButtonSet, Button, PasswordInput } from 'carbon-components-svelte';
 
     const { session } = stores();
 
@@ -38,7 +38,7 @@
     <FluidForm>
         <ListErrors {errors} />
         <TextInput placeholder='password' bind:value={email} />
-        <TextInput type='Password' placeholder="password" bind:value={password} />
+        <PasswordInput placeholder="password" bind:value={password} />
     </FluidForm>
     <ButtonSet stacked>
         <Button on:click={join}>Join</Button>

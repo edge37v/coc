@@ -7,7 +7,7 @@
 </script>
     
 <script>
-    import { Row, Column, Link, FluidForm, ButtonSet, Button, TextInput } from 'carbon-components-svelte';
+    import { Row, Column, Link, FluidForm, ButtonSet, Button, TextInput, PasswordInput } from 'carbon-components-svelte';
     import ListErrors from '../components/ListErrors.svelte';
     import { goto, stores } from '@sapper/app';
     import { post } from 'utils.js';
@@ -39,7 +39,7 @@
         <p>Log In</p>
         <ListErrors {errors} />
         <TextInput labelText='Email' bind:value={email} />
-        <TextInput type='password' labelText='Password' bind:value="{password}" />
+        <PasswordInput labelText='Password' bind:value="{password}" />
     </FluidForm>
     <ButtonSet stacked>
         <Button on:click={login}>Login</Button>

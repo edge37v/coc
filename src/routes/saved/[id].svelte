@@ -48,14 +48,18 @@
     let s_total
     let token = user.token
     let s_toolbarSearch
+    let s_search_expanded = false
     let selectedRowIds = []
     let s_classes = {}
 
-    $: get_s_classes(sq)
+    $: get_saved(sq)
 
     let unsave = async function(id) {
         let data = { ids: selectedRowIds }
-        if (id) data.ids = [id]
+        if (id) {
+            data.ids = [id]
+            console.log(id)
+        }
         await api.put('services/unsave', data, token)
     }
     
@@ -87,21 +91,15 @@
                     </span>
                     <span slot='cell' let:row let:cell>
                         {#if cell.key === 'archive'}
-                            <Button kind='ghost' hasIconOnly on:click={archive(row.id)} icon={Archive16}/>
-                        {:else}{cell.value}{/if}
-                    </span>
-                    <span slot='cell' let:row let:cell>
-                        {#if cell.key === 'delete'}
-                            <Button kind='ghost' hasIconOnly on:click={del(row.id)} icon={Delete16}/>
+                            <Button kind='ghost' hasIconOnly on:click={unsave(row.id)} icon={Archive16}/>
                         {:else}{cell.value}{/if}
                     </span>
                     <Toolbar>
                         <ToolbarBatchActions>
-                            <Button kind='ghost' on:click={archive}>Archive</Button>
-                            <Button kind='ghost' on:click={del}>Delete</Button>
+                            <Button kind='ghost' on:click={unsave}>Unsave</Button>
                         </ToolbarBatchActions>
                         <ToolbarContent>
-                            <ToolbarSearch bind:ref={s_toolbarSearch} bind:value={sq}/>
+                            <ToolbarSearch bind:expanded={s_search_expanded} bind:value={sq}/>
                             <ToolbarMenu>
                                 <ToolbarMenuItem>
                                     Set All
