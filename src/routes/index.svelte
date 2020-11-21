@@ -22,8 +22,6 @@ Modal,
     } from 'carbon-components-svelte'
     import { stores, goto } from '@sapper/app'
     import Save16 from 'carbon-icons-svelte/lib/Save16'
-    import Archive16 from 'carbon-icons-svelte/lib/Archive16'
-    import Delete16 from 'carbon-icons-svelte/lib/Delete16'
     import * as api from 'api'
     import { globalQuery } from '../stores.js'
 
@@ -38,6 +36,27 @@ Modal,
     $: gl(ql)
 
     let loginQueryOpen = false
+
+    let position
+    let positionErrorCode
+    let positionErrorMessage
+
+    function success() {
+        position.latitude = postion.coords.latitude
+        position.longitude = position.coords.longitude
+    }
+
+    function error(error) {
+        isPosition = false
+        positionErrorCode = error.code
+        positionErrorMessage = error.message
+    }
+
+    let options = {
+        enableHighAccuracy: true
+    }
+
+    const watchID = navigator.geolocation.watchPosition(success, error, options)
 
     let selectedRowIds = []
     let s_toolbarSearch
@@ -86,7 +105,11 @@ Modal,
     }
 
     let s_search = async function() {
-        res = await api.get(`services/search?q=${$globalQuery}&location=${ql}&s_page=${s_page+1}&p_page=${p_page+1}`)
+        let data = {}
+        if ( isPosition ) {
+            data.position = position
+        }
+        res = await api.put(`services/search?q=${$globalQuery}&s_page=${s_page+1}&p_page=${p_page+1}`, data)
         s_total = res.meta.total_items
         if (s_total < 1) empty = true
         for (let i=0; i<s_total; i++)  {

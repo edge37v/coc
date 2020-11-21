@@ -9,7 +9,16 @@ import sessionFileStore from 'session-file-store';
 const FileStore = sessionFileStore(session);
 const { PORT, NODE_ENV } = process.env;
 
-export default polka()
+const  { createServer } = require('https');
+const { readFileSync } = require('fs');
+const ssl_port = 443;
+
+const options = {
+  key: readFileSync('../ssl/key.pem'),
+  cert: readFileSync('../ssl/cert.pem')
+};
+
+const { handler } = polka()
   .use(
     bodyParser.json(),
     session({
@@ -31,6 +40,7 @@ export default polka()
         })
     })
   )
-  .listen(PORT, (err) => {
-    if (err) console.log("error", err);
-  });
+
+createServer(options, handler).listen(ssl_port, _ => {
+  console.log(`> Running on https://localhost:${ssl_port}`);
+})

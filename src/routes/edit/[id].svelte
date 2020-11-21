@@ -8,6 +8,32 @@
     const { session } = stores()
     const user = $session.user
 
+    let position
+    let position_status
+    let positionErrorCode
+    let positionErrorMessage
+
+    function success() {
+        position.latitude = postion.coords.latitude
+        position.longitude = position.coords.longitude
+    }
+
+    function error(error) {
+        positionErrorCode = error.code
+        positionErrorMessage = error.message
+    }
+
+    let options = {
+        enableHighAccuracy: true,
+        timeout: 15000
+    }
+
+    const watchID = navigator.geolocation.watchPosition(success, error, options)
+
+    let get_location = function() {
+        watchID()
+    }
+
     let errors
     let password
     let location = {latitude: 0, longitude: 0}
@@ -51,6 +77,8 @@
 <Tooltip direction='right'>
     <p>This helps us sort results in order of distance relative to users</p>
 </Tooltip>
+<Button size='small' kind='ghost' on:click={get_location}>Get current location</Button>
+<p bind:this={position_status}></p>
 <NumberInput allowEmpty step={0.0000001} mobile label='latitude' bind:value={location.latitude}/>
 <NumberInput allowEmpty mobile label='longitude' bind:value={location.longitude}/>
 <br/>
