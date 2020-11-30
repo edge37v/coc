@@ -1,5 +1,7 @@
 <script>
   import { post } from 'utils.js'
+  import { onMount } from 'svelte'
+  import * as api from 'api'
   import { stores, goto } from '@sapper/app'
   import {
     SideNav,
@@ -14,13 +16,21 @@
 
   const ctx = getContext("Theme")
   const { session } = stores()
-  const user = $session.user
   let isSideNavOpen = false
+
+  let page = 1
+  let categories
+  let categoriesData
+
+  onMount(() => {
+    categoriesData = api.get(`categories/${page}`)
+    categories = categoriesData.data
+  })
 
   let logout = async function() {
     await post(`auth/logout`)
-    $session.user = null
-    goto('/')
+    delete $session.user
+    goto('login')
   }
 
   $: if (ctx) {
@@ -48,21 +58,15 @@
 
 <SideNav bind:isOpen={isSideNavOpen}>
   <SideNavItems>
-    {#if user}
-    <SideNavLink text='Profile' href='{user.id}'/>
-    <SideNavLink href='classes/{user.id}' text='Classes'/>
-    <SideNavMenu text='Services'>
-      <SideNavMenuItem href='add_service' text='Add Service'/>
-      <SideNavMenuItem href='add_s_class' text='Add Service Class'/>
-    </SideNavMenu>
-    <SideNavMenu text='Products'>
-      <SideNavMenuItem href='add_product' text='Add Product'/>
-    </SideNavMenu>
-    <SideNavLink text='Saved' href='saved/{user.id}'/>
-    <SideNavLink text='Logout' href='' on:click={logout} />
-    {/if}
-    {#if !user}
-    <SideNavLink text='Login' href='login'/>
+    {#each categories as category}
+      <SideNavMenu text={category.name}>
+        {#each category.subcategories as subcategory}
+          <SideNavMenuItem href='subcategory/{subcategory.id}' text={subcategory.name}/>
+        {/each}
+      </SideNavMenu>
+    {/each}
+    {#if $session.token}
+      <SideNavLink text='Logout' href='' on:click={logout} />
     {/if}
   </SideNavItems>
 </SideNav>

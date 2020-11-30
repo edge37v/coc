@@ -61,9 +61,9 @@
     }
     
     let get_saved = async function() {
-        saved = await api.get(`user/saved?page=${s_page}`, token)
+        let saved = await api.get(`user/saved?page=${s_page}`, token)
         s_total = saved.meta.total_items
-        for (i=0; i < s_total; i++) {
+        for (let i=0; i < s_total; i++) {
             let s_saved = saved.data[i]
             s_rows = [...s_rows, { id: s_saved.id, name: s_saved.name }]}
     }

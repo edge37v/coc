@@ -7,8 +7,7 @@
         {#each errors as error}
             <InlineNotification
                 kind='error'
-                timeout={5}
-                title={error}
-                hideCloseButton/>
+                timeout={13000}
+                title={error}/>
         {/each}
 {/if}

@@ -2,7 +2,7 @@
     import * as api from 'api'
     export async function preload(page) {
         let id = page.params.id
-        let user = await api.get(`users/${id}`)
+        let user = await api.get(`user/${id}`)
         return { user }
     }
 </script>
@@ -13,6 +13,7 @@
     import {
         TabContent,
         Column,
+        Button,
         Grid,
         Tabs,
         Tab,
@@ -38,6 +39,10 @@
 
 </script>
 
+<svelte:head>
+    <title>{user.username}</title>
+</svelte:head>
+
 <Tabs aria-label='Tab navigation'>
     <Tab label='Profile'/>
     <Tab label='Services'/>
@@ -47,11 +52,11 @@
             <TabContent {...props}>
                 <p>{user.name}</p>
                 <p>{user.phone}</p>
-                <p>{user.email}</p>
+                <p>{user.username}</p>
                 <p><a style='text-decoration: none;' href={user.website}>{user.website}</a></p>
                 <p>{user.about}</p>
                 {#if auth}
-                    <p><a style='text-decoration: none;' href='edit/{user.id}'>Edit</a></p>
+                    <Button rel='prefetch' kind='ghost' href='edit/{user.id}'>Edit</Button>
                 {/if}
             </TabContent>
             <TabContent {...props}>

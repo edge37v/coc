@@ -1237,23 +1237,18 @@ caniuse-lite@^1.0.30001157:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001157.tgz#2d11aaeb239b340bc1aa730eca18a37fdb07a9ab"
   integrity sha512-gOerH9Wz2IRZ2ZPdMfBvyOi3cjaz4O4dgNwPGzx8EhqAs4+2IL/O+fJsbt+znSigujoZG8bVcIAUM/I/E5K3MA==
 
-carbon-components-svelte@0.22.0:
-  version "0.22.0"
-  resolved "https://registry.yarnpkg.com/carbon-components-svelte/-/carbon-components-svelte-0.22.0.tgz#f73e07517a8cafcf0a7063378cb26d3d880874a8"
-  integrity sha512-oI8bQpmHelBp6oqNHJYJpKV0W4k6sVzoK1tvr/2zNhVi6Btt2Pc3RH3Hfyl6gxUhxqpLD+84kYd3npPslCMpyw==
+carbon-components-svelte@0.23.1:
+  version "0.23.1"
+  resolved "https://registry.yarnpkg.com/carbon-components-svelte/-/carbon-components-svelte-0.23.1.tgz#573aa5e041d5a20a43da98a0bdfb5a9f2abbe1e2"
+  integrity sha512-2ZmJvTmgRjtyrCnYa64s/SiBclScmz78HYv8wehgURxWduiEKfugTf7lnQMHtuJseFgr7Ak0NfMCSmfjI6eYxA==
   dependencies:
-    carbon-icons-svelte "^10.17.0"
+    carbon-icons-svelte "^10.21.0"
     flatpickr "4.6.3"
 
-carbon-icons-svelte@10.21.0:
+carbon-icons-svelte@10.21.0, carbon-icons-svelte@^10.21.0:
   version "10.21.0"
   resolved "https://registry.yarnpkg.com/carbon-icons-svelte/-/carbon-icons-svelte-10.21.0.tgz#9bbdd37d5513d484e9706d6335c121f60f3186c4"
   integrity sha512-5NNaRdmbS4N36dUGNj72Ys3VqVjH3fZ69AhYUHx+bH02GFYCwAaE49qjtP77kP7DKMtDV9NmMEti/P/JB83aYQ==
-
-carbon-icons-svelte@^10.17.0:
-  version "10.17.0"
-  resolved "https://registry.yarnpkg.com/carbon-icons-svelte/-/carbon-icons-svelte-10.17.0.tgz#f7559f58be9c789097ea4035e52dbc4c12691d45"
-  integrity sha512-as1RN87YLvF7iepGAGWQOk2oleyb4w17BoHSYyQgE3MceOla04YdSWASK5c22XZZnmMJbbrT17Z34Cl70niz0Q==
 
 chalk@^2.0.0, chalk@^2.4.1:
   version "2.4.2"

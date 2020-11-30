@@ -1,50 +1,79 @@
-<script>
-    var geolocation = require('geolocation')
+<script context='module'>
     import * as api from 'api'
+    export async function preload(page) {
+        const user = await api.get(`user/${page.params.id}`)
+        return { user }
+    }
+</script>
+
+<script>
+    export let user
+    import { onMount } from 'svelte'
     import { goto, stores } from '@sapper/app'
     import ListErrors from './ListErrors.svelte'
     import {
-        Row, 
+        Row,
+        Column,
         TextInput, 
         PasswordInput, 
-        TextArea, 
+        TextArea,
         Button, 
         NumberInput, 
-        Tooltip
+        Tooltip,
+        InlineLoading,
+        FluidForm
     } from 'carbon-components-svelte'
 
     const { session } = stores()
-    const user = $session.user
 
-    let position
+    let position = { latitude: null, longitude: null }
+    if (user.location) {
+        position.latitude = user.location.latitude
+        position.longitude = user.location.longitude
+    }
+
     let positionStatus
     let positionErrorCode
     let positionErrorMessage
-    let positionStatusIcon = false
 
-    let get_location = function() {
-        function callback(error, position) {
-            if (error) {
-                positionErrorCode = error.code
-                positionErrorMessage = error.message
-            }
-            position.latitude = postion.coords.latitude
-            position.longitude = position.coords.longitude
-        }
-
-        let options = {
-            enableHighAccuracy: true,
-            timeout: 15000
-        }
-
-        positionStatus = 'Attempting to get your location'
-        geolocation.getCurrentPosition(options, callback())
+    let getCurrentPosition = function() {
+        return
     }
+
+    function success(pst) {
+        position.latitude = pst.coords.latitude
+        position.longitude = pst.coords.longitude
+        positionErrorCode = null
+        positionErrorMessage = null
+        positionStatus = 'success'
+    }
+
+    function error(error) {
+        positionErrorCode = error.code
+        positionErrorCode = error.message
+        positionStatus = 'error'
+    }
+
+    let options = {
+        enableHighAccuracy: true,
+        timeout: 5000
+    }
+
+    onMount(() => {
+        getCurrentPosition = function() {
+            positionStatus = 'getting'
+            if (!navigator.geolocation) {
+                positionStatus = 'unsupported'
+                console.log('not navigator')
+            } else {
+                navigator.geolocation.getCurrentPosition(success, error, options)
+            }
+        }
+    })
 
     let errors
     let password
-    let location = {latitude: 0, longitude: 0}
-    let email  = user.email
+    let username  = user.username
     let name = user.name
     let website = user.website
     let phone = user.phone
@@ -53,17 +82,17 @@
     let edit = async function() {
         let token = user.token
         let data = {
-            email,
+            username,
             password,
             name,
             website,
             phone,
             about
         }
-        if (position) {
+        if (!positionErrorCode) {
             data.location = position
         }
-        let res = await api.put(`users/${user.id}`, data, token)
+        let res = await api.put(`user/${user.id}`, data, token)
         errors = res.errors
 
         if (res.user) {
@@ -74,25 +103,45 @@
 </script>
 
 <ListErrors {errors}/>
-<TextInput labelText='Email' bind:value={email}/>
-<PasswordInput labelText='Password' bind:value={password}/>
-<TextInput labelText='Name' bind:value={name}/>
-<TextInput labelText='Website' bind:value={website}/>
-<TextInput labelText='Phone' bind:value={phone}/>
-<TextArea labelText='About' bind:value={about}/>
+<FluidForm>
+    <TextInput labelText='Username' bind:value={username}/>
+    <PasswordInput labelText='Password' bind:value={password}/>
+    <TextInput labelText='Name' bind:value={name}/>
+    <TextInput labelText='Website' bind:value={website}/>
+    <TextInput labelText='Phone' bind:value={phone}/>
+    <TextArea placeholder='About' bind:value={about}/>
+</FluidForm>
 <br/>
 
-<Row>
-    <Button size='small' kind='ghost' on:click={get_location}>Get current location</Button>
-    {#if positionStatus}
-    <Tooltip bind:hideIcon={positionStatusIcon} triggerText={positionStatus}>
+<Row lg={2} md={2} sm={2}>
+    <span><Button size='small' kind='ghost' on:click={getCurrentPosition}>Get current location</Button></span>
+    <span>
+    {#if positionStatus == 'unsupported'}
+        <InlineLoading status='error' description='Geolocation not supported by your browser'/>
+    {/if}
+    {#if positionStatus == 'getting'}
+        <InlineLoading/>
+    {/if}
+    {#if positionStatus == 'error'}
+        <InlineLoading status='error'/>
+    {/if}
+    {#if positionStatus == 'success'}
+        <InlineLoading status='finished'/>
+    {/if}
+    </span>
+    <span>
+    <Tooltip>
+        {#if positionStatus == 'error'}
         <p>Error code: {positionErrorCode}</p>
         <p>Error message: {positionErrorMessage}</p>
+        {:else}
+        <p>Helps us sort search results by distance to user</p>
+        {/if}
     </Tooltip>
-    {/if}
+    </span>
 </Row>
-<p bind:this={positionStatus}></p>
-<NumberInput allowEmpty step={0.0000001} mobile label='Latitude' bind:value={location.latitude}/>
-<NumberInput allowEmpty mobile label='Longitude' bind:value={location.longitude}/>
+
+<NumberInput allowEmpty step={0.0000001} label='Latitude' bind:value={position.latitude}/>
+<NumberInput allowEmpty step={0.0000001} label='Longitude' bind:value={position.longitude}/>
 <br/>
 <Button on:click={edit}>Apply edits</Button>

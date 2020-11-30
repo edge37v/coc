@@ -1,5 +1,16 @@
 import { writable } from 'svelte/store'
 
+function createFields() {
+    const { subscribe, set} = writable([])
+
+    return {
+        subscribe,
+        set: (fields) => set(fields)
+    }
+}
+
+export const indexServiceFilters = createFields()
+
 function createQuery() {
     const { subscribe, set} = writable([])
 

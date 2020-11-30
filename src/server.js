@@ -14,8 +14,8 @@ const { readFileSync } = require('fs');
 const ssl_port = 443;
 
 const options = {
-  key: readFileSync('./ssl/key.pem'),
-  cert: readFileSync('./ssl/cert.pem')
+  key: readFileSync('ssl/key.pem'),
+  cert: readFileSync('ssl/cert.pem')
 };
 
 const { handler } = polka()
@@ -36,7 +36,7 @@ const { handler } = polka()
     sirv("static", { dev: NODE_ENV === "development" }),
     sapper.middleware({
       session: req => ({
-          user: req.session.user
+          token: req.session.token
         })
     })
   )

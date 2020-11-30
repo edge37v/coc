@@ -1,16 +1,7 @@
 <script>
   import {
     Content,
-    Breadcrumb,
-    BreadcrumbItem,
-    Grid,
-    Row,
-    Column,
-    Tabs,
-    TabContent,
-    Tab,
-    Select,
-    SelectItem,
+    Grid
   } from "carbon-components-svelte";
   import Header from "../components/Header.svelte";
   import Theme from "../components/Theme.svelte";
