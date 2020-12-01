@@ -14,22 +14,22 @@
   } from "carbon-components-svelte"
   import { getContext } from "svelte"
 
+
   const ctx = getContext("Theme")
   const { session } = stores()
   let isSideNavOpen = false
 
-  let page = 1
-  let categories
-  let categoriesData
+  let phm
 
-  onMount(() => {
-    categoriesData = api.get(`categories/${page}`)
-    categories = categoriesData.data
-  })
+  if ($session.token) {
+    phm = true
+  } else {
+    phm = false
+  }
 
   let logout = async function() {
     await post(`auth/logout`)
-    delete $session.user
+    delete $session.token
     goto('login')
   }
 
@@ -45,7 +45,7 @@
 </script>
 
 <Header 
-  persistentHamburgerMenu={true}
+  persistentHamburgerMenu={phm}
   company="MarketLinks"
   platFluidFormName=''
   bind:isSideNavOpen
@@ -56,17 +56,13 @@
   </div>
 </Header>
 
+{#if $session.token}
 <SideNav bind:isOpen={isSideNavOpen}>
-  <SideNavItems>
-    {#each categories as category}
-      <SideNavMenu text={category.name}>
-        {#each category.subcategories as subcategory}
-          <SideNavMenuItem href='subcategory/{subcategory.id}' text={subcategory.name}/>
-        {/each}
-      </SideNavMenu>
-    {/each}
-    {#if $session.token}
-      <SideNavLink text='Logout' href='' on:click={logout} />
-    {/if}
-  </SideNavItems>
+  <div slot='default'>
+    <SideNavItems>
+        <SideNavLink text='Logout' href='' on:click={logout}/>
+        <SideNavLink text='Add Category' href='add_category'/>
+    </SideNavItems>
+  </div>
 </SideNav>
+{/if}

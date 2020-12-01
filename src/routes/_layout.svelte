@@ -1,4 +1,5 @@
 <script>
+  export let segment
   import {
     Content,
     Grid
@@ -8,7 +9,7 @@
 </script>
 
 <Theme persist theme="g100">
-  <Header/>
+  <Header segment={segment}/>
   <Content style="background: none; padding: 1rem">
     <Grid>
       <slot />

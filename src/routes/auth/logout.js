@@ -1,6 +1,6 @@
 import * as api from 'api'
 export function post(req, res) {
-    api.del(`tokens?id=${req.session.user.id}`, req.session.user.token)
-    delete req.session.user
+    api.del('tokens', req.session.token)
+    delete req.session.token
     res.end(JSON.stringify({ ok: true }))
 }
