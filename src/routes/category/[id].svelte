@@ -21,6 +21,13 @@
     let page = 1
     let res
 
+    let delete = async function(id){
+        api.del(`subcategories?id=${id}`, token)
+        if (res.yes) {
+            subcategories = subcategories.filter(c => c.id != id)
+        }
+    }
+
     $:get_subcategories(page)
 
     let get_subcategories = async function(){

@@ -17,7 +17,10 @@
     $:get_categories(page)
 
     let delete = async function(id){
-        api.del('categories', token)
+        api.del(`categories?id=${id}`, token)
+        if (res.yes) {
+            categories = categories.filter(c => c.id != id)
+        }
     }
 
     let go = async function(id){

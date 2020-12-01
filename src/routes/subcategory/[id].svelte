@@ -18,6 +18,13 @@
     let page = 1
     let res
 
+    let delete = async function(id){
+        api.del(`entries?id=${id}`, token)
+        if (res.yes) {
+            entries = entries.filter(c => c.id != id)
+        }
+    }
+
     $:get_entries(page)
 
     let get_entries = async function() {
