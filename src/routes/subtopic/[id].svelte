@@ -1,13 +1,13 @@
 <script context='module'>
     export async function preload(page) {
         let id = page.params.id
-        let subcategory = await api.get(`subcategories?id=${id}`)
-        return { subcategory }
+        let subtopic = await api.get(`subtopics?id=${id}`)
+        return { subtopic }
     }
 </script>
 
 <script>
-    export let subcategory
+    export let subtopic
     import * as api from 'api'
     import { goto } from '@sapper/app'
     import Delete16 from 'carbon-icons-svelte/lib/Delete16'
@@ -18,7 +18,7 @@
     let page = 1
     let res
 
-    let delete = async function(id){
+    let del = async function(id){
         api.del(`entries?id=${id}`, token)
         if (res.yes) {
             entries = entries.filter(c => c.id != id)
@@ -28,13 +28,13 @@
     $:get_entries(page)
 
     let get_entries = async function() {
-    	res = await api.get(`entries/from_subcategory?id=${subcategory.id}&page=${page}`)
+    	res = await api.get(`entries/from_subtopic?id=${subtopic.id}&page=${page}`)
     	total = res.total_items
     	entries = res.data
     }
 </script>
 
-<h2>Entries for subcategory: {subcategory.name}</h2>
+<h2>Entries for subtopic: {subtopic.name}</h2>
 
 {#each entries as entry}
     <Row>
@@ -43,7 +43,7 @@
         </Column>
         {#if $session.token}
             <Column>
-                <Button size='small' hasIconOnly icon={Delete16} on:click={}/>
+                <Button size='small' hasIconOnly icon={Delete16} on:click={del(id)}/>
             </Column>
         {/if}
     </Row>
@@ -53,7 +53,7 @@
 
 {#if total < 1}
     <br/>
-    <p>There don't seem to be any entries for that subcategory</p>
+    <p>There don't seem to be any entries for that subtopic</p>
 {/if}
 {#if total > 37}
     <PaginationNav bind:page={page} loop total={total}/>

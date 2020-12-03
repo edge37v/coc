@@ -1,13 +1,13 @@
 <script context='module'>
     export async function preload(page, token) {
         let id = page.params.id
-        let category = await api.get(`categories?id=${id}`)
-        return {category}
+        let topic = await api.get(`topics?id=${id}`)
+        return {topic}
     }
 </script>
 
 <script>
-    export let category
+    export let topic
 
     import { Button, Row, Column, Link, PaginationNav } from 'carbon-components-svelte'
     import Add16 from 'carbon-icons-svelte/lib/Add16'
@@ -16,37 +16,37 @@
 
     const {session} = stores()
 
-    let subcategories = []
+    let subtopics = []
     let total = 0
     let page = 1
     let res
 
     let delete = async function(id){
-        api.del(`subcategories?id=${id}`, token)
+        api.del(`subtopics?id=${id}`, token)
         if (res.yes) {
-            subcategories = subcategories.filter(c => c.id != id)
+            subtopics = subtopics.filter(c => c.id != id)
         }
     }
 
-    $:get_subcategories(page)
+    $:get_subtopics(page)
 
-    let get_subcategories = async function(){
-        res = await api.get(`subcategories/from_category?id=${category.id}&page=${page}`)
+    let get_subtopics = async function(){
+        res = await api.get(`subtopics/from_topic?id=${topic.id}&page=${page}`)
         total = res.total_items
-        subcategories = res.data
+        subtopics = res.data
     }
 </script>
 
-<h2>Subcategories in `{category.name}`</h2>
+<h2>Subtopics in `{topic.name}`</h2>
 
-{#each subcategories as subcategory}
+{#each subtopics as subtopic}
     <Row>
         <Column lg={3} md={3} sm={2}>
-            <Link style='font-size: 1.2em; color: white;' href='subcategory/{subcategory.id}'>{subcategory.name}</Link>
+            <Link style='font-size: 1.2em; color: white;' href='subtopic/{subtopic.id}'>{subtopic.name}</Link>
         </Column>
         {#if $session.token}
             <Column>
-                <Button size='small' hasIconOnly icon={Add16} on:click={() => {goto(`add_entry/${subcategory.id}`)}}/>
+                <Button size='small' hasIconOnly icon={Add16} on:click={() => {goto(`add_entry/${subtopic.id}`)}}/>
             </Column>
         {/if}
     </Row>

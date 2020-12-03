@@ -22,7 +22,7 @@
 		let data = {
 			name
 		}
-		let res = await api.post('categories', data, token)
+		let res = await api.post('topics', data, token)
 		errors = res.errors
 		if (res.yes) {
 			goto('/')

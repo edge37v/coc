@@ -12,30 +12,30 @@
     let search
     let page = 1
     let total = 0
-    let categories = []
+    let topics = []
 
-    $:get_categories(page)
+    $:get_topics(page)
 
     let delete = async function(id){
-        api.del(`categories?id=${id}`, token)
+        api.del(`topics?id=${id}`, token)
         if (res.yes) {
-            categories = categories.filter(c => c.id != id)
+            topics = topics.filter(c => c.id != id)
         }
     }
 
     let go = async function(id){
-        goto(`add_subcategory/${id}`)
+        goto(`add_subtopic/${id}`)
     }
 
-    let search_categories = async function(){
-        res = api.get(`categories/search/${search}`)
+    let search_topics = async function(){
+        res = api.get(`topics/search/${search}`)
     }
 
-    let get_categories = async function(){
-        res = await api.get(`categories/${page}`)
+    let get_topics = async function(){
+        res = await api.get(`topics/${page}`)
         console.log(res)
         total = res.total_items
-        categories = res.data
+        topics = res.data
     }
 </script>
 
@@ -47,14 +47,14 @@
 </FluidForm>
 
 <br/>
-{#each categories as category}
+{#each topics as topic}
     <Row>
         <Column lg={2} md={2} sm={2}>
-            <Link style='font-size: 1.2em; color: white;' href='category/{category.id}'>{category.name}</Link>
+            <Link style='font-size: 1.2em; color: white;' href='topic/{topic.id}'>{topic.name}</Link>
         </Column>
         {#if $session.token}
             <Column>
-                <Button size='small' hasIconOnly icon={Add16} on:click={go(category.id)}/>
+                <Button size='small' hasIconOnly icon={Add16} on:click={go(topic.id)}/>
             </Column>
         {/if}
     </Row>

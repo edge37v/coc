@@ -2,13 +2,13 @@
     import * as api from 'api'
     export async function preload(page) {
         let id = page.params.id
-        let category = await api.get(`categories?id=${id}`)
-        return { category }
+        let topic = await api.get(`topics?id=${id}`)
+        return { topic }
     }
 </script>
 
 <script>
-    export let category
+    export let topic
     import { stores, goto } from '@sapper/app'
     import ListErrors from './ListErrors.svelte'
     import { FluidForm, Button, TextInput } from 'carbon-components-svelte'
@@ -19,21 +19,21 @@
         goto('/')
     }
 
-    let id = category.id
+    let id = topic.id
     let name
 
     let errors
 
     let add = async function(){
         let data = { name, id }
-        let res = await api.post('subcategories', data, token)
-        if (res.subcategory){
-            goto(`subcategory/${res.subcategory.id}`)
+        let res = await api.post('subtopics', data, token)
+        if (res.subtopic){
+            goto(`subtopic/${res.subtopic.id}`)
         }
     }
 </script>
 
-<h2>Add subcategory to `{category.name}`</h2>
+<h2>Add subtopic to `{topic.name}`</h2>
 
 <ListErrors {errors}/>
 
