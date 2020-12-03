@@ -9,7 +9,8 @@
 <script>
     export let topic
 
-    import { Button, Row, Column, Link, PaginationNav } from 'carbon-components-svelte'
+    import { Modal, Button, Row, Column, Link, PaginationNav } from 'carbon-components-svelte'
+    import Delete16 from 'carbon-icons-svelte/lib/Delete16'
     import Add16 from 'carbon-icons-svelte/lib/Add16'
     import { stores, goto } from '@sapper/app'
     import * as api from 'api'
@@ -21,7 +22,15 @@
     let page = 1
     let res
 
-    let delete = async function(id){
+    let delID
+    let delModalOpen = false
+
+    let preDel = async function(id){
+        delID = id
+        delModalOpen=true
+    }
+
+    let del = async function(id){
         api.del(`subtopics?id=${id}`, token)
         if (res.yes) {
             subtopics = subtopics.filter(c => c.id != id)
@@ -32,10 +41,23 @@
 
     let get_subtopics = async function(){
         res = await api.get(`subtopics/from_topic?id=${topic.id}&page=${page}`)
-        total = res.total_items
+        total = res.total_pages
         subtopics = res.data
     }
 </script>
+
+<Modal
+    danger
+    shouldSubmitOnEnter
+    bind:open={delModalOpen}
+    modalHeading='Delete Item'
+    primaryButtonText='Confirm'
+    secondaryButtonText='Cancel'
+    on:click:button--primary={() => (del(delID))}
+    on:click:button--secondary={() => (delModalOpen=false)}
+>
+    <p>Sure you want to delete that?</p>
+</Modal>
 
 <h2>Subtopics in `{topic.name}`</h2>
 
@@ -47,6 +69,7 @@
         {#if $session.token}
             <Column>
                 <Button size='small' hasIconOnly icon={Add16} on:click={() => {goto(`add_entry/${subtopic.id}`)}}/>
+                <Button size='small' hasIconOnly icon={Delete16} on:click={preDel(subtopic.id)}/>
             </Column>
         {/if}
     </Row>

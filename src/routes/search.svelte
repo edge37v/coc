@@ -13,18 +13,27 @@
     let total_pages = 0
     let items = []
 
+    let delID
+    let delType
     let delModalOpen = false
 
-    let add(id, type){
-    	if (type=='topic'){
-    		goto{`add_subtopic/${id}`}
+    let add = function(id, type){
+    	if (type == 'topic'){
+    		goto(`add_subtopic/${id}`)
+    	} else if (type == 'subtopic'){
+    		goto(`add_entry/${id}`)
     	}
-    	elseif (type=='suptopic')
-    		goto{`add_entry/${id}`}
     }
 
-    let delete = async function(id){
-        api.del(`topics?id=${id}`, token)
+    //run before opening delete modal, cuz doing it in html doesn't seem to work
+    let preDel = async function(id, type){
+        delID = id
+        delType = type
+        delModalOpen=true
+    }
+
+    let del = async function(id, type){
+        api.del(`${type}?id=${id}`, token)
         if (res.yes) {
             topics = topics.filter(c => c.id != id)
         }
@@ -38,8 +47,17 @@
 </script>
 
 <Modal
+	alert
+	shouldSubmitOnEnter
 	bind:open={delModalOpen}
-/>
+	modalHeading='Delete Item'
+	primaryButtonText='Confirm'
+	secondaryButtonText='Cancel'
+	on:click:button--primary={() => (del(delID, delType))}
+	on:click:button--secondary={() => (delModalOpen=false)}
+>
+	<p>Sure you want to delete that?</p>
+</Modal>
 
 <h2>Categories</h2>
 <br/>
@@ -57,9 +75,9 @@
         {#if $session.token}
             <Column>
             	{#if item.type!='entry'}
-                <Button size='small' hasIconOnly icon={Add16} on:click={() => {add(item.id, item.type))}}/>
+                <Button size='small' hasIconOnly icon={Add16} on:click={() => (add(item.id, item.type))}/>
             	{/if}
-                <Button size='small' hasIconOnly icon={Delete16} on:click={() => {add(item.id, item.type))}}/>
+                <Button size='small' hasIconOnly icon={Delete16} on:click={() => (preDel(item.id, item.type))}/>
             </Column>
         {/if}
     </Row>

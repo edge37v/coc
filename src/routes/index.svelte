@@ -3,7 +3,7 @@
     import { stores, goto } from '@sapper/app'
     import Add16 from 'carbon-icons-svelte/lib/Add16'
     import Delete16 from 'carbon-icons-svelte/lib/Delete16'
-    import { Button, Row, Column, FluidForm, Search, Link, PaginationNav } from 'carbon-components-svelte'
+    import { Modal, Button, Row, Column, FluidForm, Search, Link, PaginationNav } from 'carbon-components-svelte'
 
     const { session } = stores()
     const token = $session.token
@@ -16,7 +16,15 @@
 
     $:get_topics(page)
 
-    let delete = async function(id){
+    let delID
+    let delModalOpen = false
+
+    let preDel = async function(id){
+        delID = id
+        delModalOpen=true
+    }
+
+    let del = async function(id){
         api.del(`topics?id=${id}`, token)
         if (res.yes) {
             topics = topics.filter(c => c.id != id)
@@ -34,12 +42,25 @@
     let get_topics = async function(){
         res = await api.get(`topics/${page}`)
         console.log(res)
-        total = res.total_items
+        total = res.total_pages
         topics = res.data
     }
 </script>
 
-<h2>Categories</h2>
+<Modal
+    danger
+    shouldSubmitOnEnter
+    bind:open={delModalOpen}
+    modalHeading='Delete Item'
+    primaryButtonText='Confirm'
+    secondaryButtonText='Cancel'
+    on:click:button--primary={() => (del(delID))}
+    on:click:button--secondary={() => (delModalOpen=false)}
+>
+    <p>Sure you want to delete that?</p>
+</Modal>
+
+<h2>Topics</h2>
 <br/>
 
 <FluidForm>
@@ -55,6 +76,7 @@
         {#if $session.token}
             <Column>
                 <Button size='small' hasIconOnly icon={Add16} on:click={go(topic.id)}/>
+                <Button size='small' hasIconOnly icon={Delete16} on:click={() => {delID = topic.id; delModalOpen=true}}/>
             </Column>
         {/if}
     </Row>
