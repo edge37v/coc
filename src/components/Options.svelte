@@ -18,4 +18,3 @@
 </script>
 
 <svelte:component this={current} bind:topic/>
-

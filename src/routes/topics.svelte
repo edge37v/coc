@@ -4,9 +4,7 @@
     import Options from '../components/Options.svelte'
     import Add16 from 'carbon-icons-svelte/lib/Add16'
     import Edit16 from 'carbon-icons-svelte/lib/Edit16'
-    import Close16 from 'carbon-icons-svelte/lib/Close16'
     import Delete16 from 'carbon-icons-svelte/lib/Delete16'
-    import Checkmark16 from 'carbon-icons-svelte/lib/Checkmark16'
     import { TextInput, Modal, Button, Row, Column, FluidForm, Search, Link, PaginationNav } from 'carbon-components-svelte'
 
     const { session } = stores()
@@ -23,16 +21,6 @@
     let delModalOpen = false
 
     delTopic.name = ''
-
-    let edit = async function(topic){
-        let id = topic.id
-        let name = topic.name
-        let data = { id, name}
-        let res = await api.put(`topics`, data, token)
-        if (res.yes){
-            topic.edit = false
-        }
-    }
 
     let del = async function(){
         let res = await api.del(`topics?id=${delTopic.id}`, token)
@@ -90,29 +78,13 @@
                 <Link style='font-size: 1.2em; color: white;' href='topic/{topic.id}'>{topic.name}</Link>
             </Column>
         {:else if $session.token}
-            <Column lg={2} md={2} sm={2}>
-                <Options bind:topic/>
-            </Column>
-            {#if topic.edit}
-                <Button
-                    kind='ghost'
-                    tooltipPosition='bottom'
-                    tooltipAlignment='center'
-                    iconDescription='Cancel'
-                    size='small' hasIconOnly icon={Close16} on:click={() => (topic.edit = false)}/>
-                <Button
-                    kind='ghost'
-                    tooltipPosition='bottom'
-                    tooltipAlignment='center'
-                    iconDescription='Apply'
-                    size='small' hasIconOnly icon={Checkmark16} on:click={edit(topic)}/>
-            {/if}
+            <Options bind:topic/>
             <Button
-                    kind='ghost'
-                    tooltipPosition='bottom'
-                    tooltipAlignment='center'
-                    iconDescription='Edit'
-                    size='small' hasIconOnly icon={Edit16} on:click={() => {topic.edit = true}}/>
+                kind='ghost'
+                tooltipPosition='bottom'
+                tooltipAlignment='center'
+                iconDescription='Edit'
+                size='small' hasIconOnly icon={Edit16} on:click={() => {topic.edit = true}}/>
             <Button
                 kind='ghost'
                 tooltipPosition='bottom'
