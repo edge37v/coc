@@ -46,7 +46,7 @@
 
 <Header 
   persistentHamburgerMenu={phm}
-  company="MarketLinks"
+  company="Truth"
   platFluidFormName=''
   bind:isSideNavOpen
   href='/'

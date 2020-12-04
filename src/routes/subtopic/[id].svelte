@@ -9,9 +9,12 @@
 <script>
     export let subtopic
     import * as api from 'api'
-    import { goto } from '@sapper/app'
+    import { stores, goto } from '@sapper/app'
     import Delete16 from 'carbon-icons-svelte/lib/Delete16'
-    import { Modal, Row, Column, PaginationNav } from 'carbon-components-svelte'
+    import { Link, Button, Modal, Row, Column, PaginationNav } from 'carbon-components-svelte'
+
+    const { session } = stores()
+    const token = $session.stores
 
     let entries = []
     let total = 0
@@ -64,7 +67,12 @@
         </Column>
         {#if $session.token}
             <Column>
-                <Button size='small' hasIconOnly icon={Delete16} on:click={del(id)}/>
+                <Button
+                    kind='ghost'
+                    tooltipPosition='bottom'
+                    tooltipAlignment='center'
+                    iconDescription='Delete Entry'
+                    size='small' hasIconOnly icon={Delete16} on:click={del(entry.id)}/>
                 <Button size='small' hasIconOnly icon={Delete16} on:click={preDel(entry.id)}/>
             </Column>
         {/if}

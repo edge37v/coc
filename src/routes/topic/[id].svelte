@@ -68,8 +68,18 @@
         </Column>
         {#if $session.token}
             <Column>
-                <Button size='small' hasIconOnly icon={Add16} on:click={() => {goto(`add_entry/${subtopic.id}`)}}/>
-                <Button size='small' hasIconOnly icon={Delete16} on:click={preDel(subtopic.id)}/>
+                <Button 
+                    kind='ghost'
+                    tooltipPosition='bottom'
+                    tooltipAlignment='center'
+                    iconDescription='Add Entry'
+                    size='small' hasIconOnly icon={Add16} on:click={() => {goto(`add_entry/${subtopic.id}`)}}/>
+                <Button
+                    kind='ghost'
+                    tooltipPosition='bottom'
+                    tooltipAlignment='center'
+                    iconDescription='Delete Subtopic'
+                    size='small' hasIconOnly icon={Delete16} on:click={preDel(subtopic.id)}/>
             </Column>
         {/if}
     </Row>
