@@ -5,39 +5,38 @@
             this.redirect(302, '/')
         }
         let id = page.params.id
-        let subtopic = await api.get(`subtopics?id=${id}`)
-        return { subtopic, token }
+        let entry = await api.get(`entries?id=${id}`)
+        return { entry, token }
     }
 </script>
 
 <script>
-    export let subtopic, token
+    export let entry, token
     import { stores, goto } from '@sapper/app'
     import ListErrors from './ListErrors.svelte'
     import { FluidForm, Button, TextArea, TextInput } from 'carbon-components-svelte'
 
-    let id = subtopic.id
-    let verses = {}
-    let name
-    let body
-
-    verses.book = null
-    verses.chapter = null
-    verses.start = null
-    verses.end = null
+    let id = entry.id
+    let verses = entry.verses
+    let name = entry.name
+    let body = entry.body
 
     let errors
 
-    let add = async function(){
+    let edit = async function(){
+        let name = entry.name
+        let body = entry.body
+        let verses = entry.verses
         let data = { name, body, verses, id }
-        let res = await api.post('entries', data, token)
+        let res = await api.put('entries', data, token)
+        errors = res.errors
         if (res.id){
             goto(`entry/${res.id}`)
         }
     }
 </script>
 
-<h2>Add entry to `{subtopic.name}`</h2>
+<h2>Edit entry {entry.id}: {entry.name}</h2>
 
 <ListErrors {errors}/>
 
@@ -52,4 +51,4 @@
 <br/>
 <TextArea labelText='Body' bind:value={body}/>
 
-<Button on:click={add}>Add</Button>
+<Button on:click={edit}>Edit</Button>

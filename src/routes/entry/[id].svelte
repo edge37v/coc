@@ -12,15 +12,16 @@
     import marked from 'marked'
     import { Modal } from 'carbon-components-svelte'
 
+    entry.edit = false
+
     let body = marked(entry.body)
 
     let delModalOpen = false
 
-
     let del= async function(){
-        api.del(`topics?id=${entry.id}`, token)
+        api.del(`entries?id=${entry.id}`, token)
         if (res.yes) {
-        	return
+        	goto(`subtopic/${entry.subtopic_id}`)
         }
     }
 </script>
@@ -39,6 +40,24 @@
 </Modal>
 
 <h2>{entry.name}</h2>
+<Row>
+    <Column>
+        <h2>Entries in subtopic: {subtopic.name}</h2>
+    </Column>
+    {#if $session.token}
+    <Column>
+        <Options bind:item={entry}/>
+        <Button
+            style='float:right;'
+            kind='ghost'
+            tooltipPosition='bottom'
+            tooltipAlignment='center'
+            iconDescription='Delete This Entry'
+            size='small' hasIconOnly icon={Delete16} on:click={del}/>
+    </Column>
+    {/if}
+</Row>
+
 <span style="font-size: 21px;">{entry.verses.book} {entry.verses.chapter}: {entry.verses.start}</span>
 {#if entry.verses.end}
 	<span  style="font-size: 21px;"> - {entry.verses.end}</span>

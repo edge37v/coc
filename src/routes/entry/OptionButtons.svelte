@@ -1,18 +1,18 @@
 <script>
 	export let item
 
-	import Edit from './Edit.svelte'
-	import Item from './Item.svelte'
+	import EditButtons from './EditButtons.svelte'
+	import ItemButtons from './ItemButtons.svelte'
 
-	let current = Item
+	let current = ItemButtons
 
 	$:changeCurrent(item.edit)
 
 	let changeCurrent = function(){
 		if (item.edit){
-			current = Edit
+			current = EditButtons
 		} else {
-			current = Item
+			current = ItemButtons
 		}
 	}
 </script>

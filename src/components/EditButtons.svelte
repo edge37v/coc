@@ -20,12 +20,6 @@
     }
 </script>
 
-<Column max={3} xlg={3} lg={3} md={3} sm={3}>
-	<Form on:submit={edit}>
-		<TextInput bind:value={item.name}/>
-	</Form>
-</Column>
-
 <Button
     kind='ghost'
     tooltipPosition='bottom'

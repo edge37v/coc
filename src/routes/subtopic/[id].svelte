@@ -10,6 +10,8 @@
     export let subtopic
     import * as api from 'api'
     import { stores, goto } from '@sapper/app'
+    import Options from './Options.svelte'
+    import Edit16 from 'carbon-icons-svelte/lib/Edit16'
     import Delete16 from 'carbon-icons-svelte/lib/Delete16'
     import { Link, Button, Modal, Row, Column, PaginationNav } from 'carbon-components-svelte'
 
@@ -21,18 +23,17 @@
     let page = 1
     let res
 
-    let delID
+    let selfDelModalOpen = false
+
+    let delItem
     let delModalOpen = false
 
-    let preDel = async function(id){
-        delID = id
-        delModalOpen=true
-    }
+    delItem.name = ''
 
-    let del = async function(id){
-        api.del(`entries?id=${id}`, token)
+    let del = async function(){
+        api.del(`entries?id=${delItem.id}`, token)
         if (res.yes) {
-            entries = entries.filter(c => c.id != id)
+            entries = entries.filter(entry => entry != delItem)
         }
     }
 
@@ -41,9 +42,27 @@
     let get_entries = async function() {
     	res = await api.get(`entries/from_subtopic?id=${subtopic.id}&page=${page}`)
     	total = res.total_pages
-    	entries = res.data
+    	res.data.forEach((entry) => {
+            entries = [...entries, { id: entry.id, name: entry.name, type: entry.type, type_plural: entry.type_plural, edit: false }]
+        })
     }
 </script>
+
+<Modal
+    danger
+    shouldSubmitOnEnter
+    bind:open={selfDelModalOpen}
+    modalHeading='Delete this Subtopic'
+    primaryButtonText='Confirm'
+    secondaryButtonText='Cancel'
+    on:click:button--primary={() => (selfDelModalOpen=false)}
+    on:click:button--secondary={() => (selfDelModalOpen=false)}
+    on:submit={selfDel}
+>
+    <p>Sure you want to delete this subtopic:</p>
+    <p>{topic.name}?</p>
+    <p>You'll also be deleting all entries under this subtopic</p>
+</Modal>
 
 <Modal
     danger
@@ -52,13 +71,30 @@
     modalHeading='Delete Item'
     primaryButtonText='Confirm'
     secondaryButtonText='Cancel'
-    on:click:button--primary={() => (del(delID))}
+    on:click:button--primary={() => (delModalOpen=false)}
     on:click:button--secondary={() => (delModalOpen=false)}
+    on:submit={del}
 >
-    <p>Sure you want to delete that?</p>
+    <p>Sure you want to delete this entry:</p>
+    <p>{delItem.name}?</p>
 </Modal>
 
-<h2>Entries for subtopic: {subtopic.name}</h2>
+<Row>
+    <Column>
+        <h2>Entries in subtopic: {subtopic.name}</h2>
+    </Column>
+    {#if $session.token}
+    <Column>
+        <Button
+            style='float:right;'
+            kind='ghost'
+            tooltipPosition='bottom'
+            tooltipAlignment='center'
+            iconDescription='Delete Subtopic'
+            size='small' hasIconOnly icon={Delete16} on:click={() => {delItem=subtopic; delModalOpen=true}}/>
+    </Column>
+    {/if}
+</Row>
 
 {#each entries as entry}
     <Row>
@@ -71,9 +107,14 @@
                     kind='ghost'
                     tooltipPosition='bottom'
                     tooltipAlignment='center'
-                    iconDescription='Delete Entry'
-                    size='small' hasIconOnly icon={Delete16} on:click={del(entry.id)}/>
-                <Button size='small' hasIconOnly icon={Delete16} on:click={preDel(entry.id)}/>
+                    iconDescription='Edit'
+                    size='small' hasIconOnly icon={Edit16} on:click={() => (goto(`edit_entry/${entry.id}`))}/>
+                <Button
+                    kind='ghost'
+                    tooltipPosition='bottom'
+                    tooltipAlignment='center'
+                    iconDescription='Delete Subtopic'
+                    size='small' hasIconOnly icon={Delete16} on:click={() => {delItem=entry; delModalOpen=true}}/>
             </Column>
         {/if}
     </Row>
