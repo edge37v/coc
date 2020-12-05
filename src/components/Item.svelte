@@ -1,18 +1,11 @@
 <script>
 	export let item
-	export let form
     import Edit16 from 'carbon-icons-svelte/lib/Edit16'
 	import { Button, Column, Link } from 'carbon-components-svelte'
 </script>
 
 <Column max={3} xlg={3} lg={3} md={3} sm={3}>
-	{#if form == 'link'
 		<Link style='font-size: 1.2em; color: white;' href='{item.type_plural}/{item.id}'>{item.name}</Link>
-	{#else if form == 'p'}
-		<p>{item.name}</p>
-	{#else if form == 'h2'}
-		<h2>{item.name}</h2>
-	{/if}
 </Column>
 
 <Button

@@ -25,7 +25,7 @@
     tooltipPosition='bottom'
     tooltipAlignment='center'
     iconDescription='Cancel'
-    size='small' hasIconOnly icon={Close16} on:click={() => (item.edit = false)}/>
+    size='small' hasIconOnly icon={Close16} on:click={() => (goto(`edit_entry/${entry.id}`))}/>
 <Button
     kind='ghost'
     tooltipPosition='bottom'

@@ -10,6 +10,7 @@
 <script>
     export let entry
     import marked from 'marked'
+    import OptionButtons from './OptionButtons.svelte'
     import { Modal } from 'carbon-components-svelte'
 
     entry.edit = false
@@ -46,7 +47,7 @@
     </Column>
     {#if $session.token}
     <Column>
-        <Options bind:item={entry}/>
+        <OptionButtons bind:item={entry}/>
         <Button
             style='float:right;'
             kind='ghost'
