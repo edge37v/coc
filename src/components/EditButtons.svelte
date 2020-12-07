@@ -13,7 +13,7 @@
         let id = item.id
         let name = item.name
         let data = { id, name}
-        let res = await api.put(`${item.type}`, data, token)
+        let res = await api.put(`${item.type_plural}`, data, token)
         if (res.yes){
             item.edit = false
         }

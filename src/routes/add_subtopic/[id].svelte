@@ -1,23 +1,22 @@
 <script context='module'>
     import * as api from 'api'
-    export async function preload(page) {
+    export async function preload(page, { token }) {
+        if (!token){
+            this.redirect(302, '/')
+        }
         let id = page.params.id
         let topic = await api.get(`topics?id=${id}`)
-        return { topic }
+        return { topic, token }
     }
 </script>
 
 <script>
-    export let topic
+    export let topic, token
     import { stores, goto } from '@sapper/app'
     import ListErrors from './ListErrors.svelte'
     import { FluidForm, Button, TextInput } from 'carbon-components-svelte'
 
-    const { session } = stores()
-    const token = $session.token
-    if (!token) {
-        goto('/')
-    }
+    console.log(token)
 
     let id = topic.id
     let name
@@ -25,8 +24,9 @@
     let errors
 
     let add = async function(){
-        let data = { name, id }
+        let data = { id, name }
         let res = await api.post('subtopics', data, token)
+        errors = res.errors
         if (res.subtopic){
             goto(`subtopic/${res.subtopic.id}`)
         }

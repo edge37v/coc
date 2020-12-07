@@ -1,91 +1,103 @@
 <script>
     import * as api from 'api'
-    import { globalQuery } from '../stores.js'
     import { stores, goto } from '@sapper/app'
+    import Options from '../components/Options.svelte'
     import Add16 from 'carbon-icons-svelte/lib/Add16'
     import Delete16 from 'carbon-icons-svelte/lib/Delete16'
-    import { Modal, Button, Row, Column, Form, Search, Link, PaginationNav } from 'carbon-components-svelte'
+    import { TextInput, Modal, Button, Row, Column, FluidForm, Search, Link, PaginationNav } from 'carbon-components-svelte'
 
     const { session } = stores()
     const token = $session.token
-
-    let page
+    
+    let search
+    let page = 1
     let total = 0
-    let items = []
+    let topics = []
 
-    let delID
-    let delType
+    $:get_topics(page)
+
+    let delItem = {}
     let delModalOpen = false
 
-    let add = function(id, type){
-    	if (type == 'topic'){
-    		goto(`add_subtopic/${id}`)
-    	} else if (type == 'subtopic'){
-    		goto(`add_entry/${id}`)
-    	}
-    }
+    delItem.name = ''
 
-    //run before opening delete modal, cuz doing it in html doesn't seem to work
-    let preDel = async function(id, type){
-        delID = id
-        delType = type
-        delModalOpen=true
-    }
-
-    let del = async function(id, type){
-        api.del(`${type}?id=${id}`, token)
+    let del = async function(){
+        let res = await api.del(`topics?id=${delItem.id}`, token)
         if (res.yes) {
-            topics = topics.filter(c => c.id != id)
+            topics = topics.filter(topic => topic != delItem)
+            delModalOpen=false
         }
     }
 
-    let search = async function(){
-        console.log(page)
-        let res = await api.get(`search?q=${$globalQuery}&page=${page}`)
-        total =res.total_pages
-        items = res.data
-        console.log(res)
+    let search_topics = async function(){
+        res = api.get(`topics/search/${search}`)
+    }
+
+    let get_topics = async function(){
+        let res = await api.get(`topics/${page}`)
+        total = res.total_pages
+        res.data.forEach((topic) => {
+            topics = [...topics, { id: topic.id, name: topic.name, type: topic.type, type_plural: topic.type_plural, edit: false }]
+        })
     }
 </script>
 
 <Modal
-	alert
-	shouldSubmitOnEnter
-	bind:open={delModalOpen}
-	modalHeading='Delete Item'
-	primaryButtonText='Confirm'
-	secondaryButtonText='Cancel'
-	on:click:button--primary={() => (del(delID, delType))}
-	on:click:button--secondary={() => (delModalOpen=false)}
+    danger
+    shouldSubmitOnEnter
+    bind:open={delModalOpen}
+    modalHeading='Delete Item'
+    primaryButtonText='Confirm'
+    secondaryButtonText='Cancel'
+    on:click:button--primary={() => (delModalOpen=false)}
+    on:click:button--secondary={() => (delModalOpen=false)}
+    on:submit={del}
 >
-	<p>Sure you want to delete that?</p>
+    <p style="font-weight: 600;">Sure you want to delete this topic:</p>
+    <p>{delItem.name}?</p>
+    <p>You'll be deleting all subtopics under this topic, and all entries under those subtopics</p>
 </Modal>
 
-<Form on:submit={search}>
-    <Search
-        autofocus={true}
-        placeholder='Search all items'
-        bind:value={$globalQuery}/>
-</Form>
+<h2>Topics</h2>
+<!--<Row>
+    <Column>
+        <h2>Topics</h2>
+    </Column>
+    <Column>
+        <Button
+                kind='ghost'
+                tooltipPosition='bottom'
+                tooltipAlignment='center'
+                iconDescription='Add Topic'
+                size='small' hasIconOnly icon={Add16} on:click={() => {delItem = topic; delModalOpen=true}}/>
+    </Column>
+</Row>-->
+
+<!--<FluidForm>
+    <Search bind:value={search}/>
+</FluidForm>-->
 
 <br/>
-{#each items as item}
+{#each topics as topic}
     <Row>
-        <Column lg={2} md={2} sm={2}>
-            <Link style='font-size: 1.2em; color: white;' href='item/{item.id}'>{item.name}</Link>
-        </Column>
-        {#if $session.token}
-            <Column>
-            	{#if item.type!='entry'}
-                <Button
-                    kind='ghost'
-                    tooltipPosition='bottom'
-                    tooltipAlignment='center'
-                    iconDescription='Add something'
-                    size='small' hasIconOnly icon={Add16} on:click={() => (add(item.id, item.type))}/>
-            	{/if}
-                <Button size='small' hasIconOnly icon={Delete16} on:click={() => (preDel(item.id, item.type))}/>
+        {#if !$session.token}
+            <Column lg={2} md={2} sm={2}>
+                <Link style='font-size: 1.2em; color: white;' href='topic/{topic.id}'>{topic.name}</Link>
             </Column>
+        {:else if $session.token}
+            <Options bind:item={topic}/>
+            <Button
+                kind='ghost'
+                tooltipPosition='bottom'
+                tooltipAlignment='center'
+                iconDescription='Add Subtopic'
+                size='small' hasIconOnly icon={Add16} on:click={() => (goto(`add_subtopic/${topic.id}`))}/>
+            <Button
+                kind='ghost'
+                tooltipPosition='bottom'
+                tooltipAlignment='center'
+                iconDescription='Delete Topic'
+                size='small' hasIconOnly icon={Delete16} on:click={() => {delItem = topic; delModalOpen=true}}/>
         {/if}
     </Row>
 {/each}

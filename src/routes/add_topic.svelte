@@ -24,8 +24,8 @@
 		}
 		let res = await api.post('topics', data, token)
 		errors = res.errors
-		if (res.yes) {
-			goto('/')
+		if (res.id) {
+			goto(`topic/${res.id}`)
 		}
 	}
 </script>

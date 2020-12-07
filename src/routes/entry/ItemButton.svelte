@@ -1,6 +1,5 @@
 <script>
 	export let item
-	export let form
     import Edit16 from 'carbon-icons-svelte/lib/Edit16'
 	import { Button, Column, Link } from 'carbon-components-svelte'
 </script>

@@ -19,7 +19,7 @@
     let errors = null;
 
     let login = async function() {
-        const r = await post(`auth/login`, { password})
+        const r = await post(`auth/login`, { password })
         errors = r.errors
         if (r.token) {
             $session.token = r.token

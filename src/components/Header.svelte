@@ -30,7 +30,7 @@
   let logout = async function() {
     await post(`auth/logout`)
     delete $session.token
-    goto('login')
+    goto('/')
   }
 
   $: if (ctx) {
@@ -46,6 +46,7 @@
 
 <Header 
   persistentHamburgerMenu={phm}
+  expandedByDefault={false}
   company="Truth"
   platFluidFormName=''
   bind:isSideNavOpen
@@ -62,6 +63,7 @@
     <SideNavItems>
         <SideNavLink text='Logout' href='' on:click={logout}/>
         <SideNavLink text='Add Topic' href='add_topic'/>
+        <SideNavLink text='Topics' href='topics'/>
     </SideNavItems>
   </div>
 </SideNav>

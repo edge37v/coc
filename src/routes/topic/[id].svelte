@@ -1,14 +1,15 @@
 <script context='module'>
-    export async function preload(page, token) {
+    export async function preload(page, { token }) {
         let id = page.params.id
         let topic = await api.get(`topics?id=${id}`)
-        return {topic}
+        return {topic, token}
     }
 </script>
 
 <script>
-    export let topic
+    export let topic, token
     import { Modal, Button, Row, Column, Link, PaginationNav } from 'carbon-components-svelte'
+    import HeaderOptions from './HeaderOptions.svelte'
     import Delete16 from 'carbon-icons-svelte/lib/Delete16'
     import Edit16 from 'carbon-icons-svelte/lib/Edit16'
     import Options from './Options.svelte'
@@ -16,8 +17,7 @@
     import { stores, goto } from '@sapper/app'
     import * as api from 'api'
 
-
-    const {session} = stores()
+    topic.edit = false
 
     let subtopics = []
     let total = 0
@@ -31,7 +31,14 @@
 
     delItem.name = ''
 
-    let del = async function(id){
+    let selfDel = async function(){
+        let res = await api.del(`topics?id=${topic.id}`, token)
+        if (res.yes){
+            goto('topics')
+        }
+    }
+
+    let del = async function(){
         let res = await api.del(`subtopics?id=${delItem.id}`, token)
         if (res.yes) {
             subtopics = subtopics.filter(subtopic => subtopic != delItem)
@@ -45,7 +52,7 @@
         res = await api.get(`subtopics/from_topic?id=${topic.id}&page=${page}`)
         total = res.total_pages
         res.data.forEach((subtopic) => {
-            subtopics = [...subtopic, { id: subtopic.id, name: subtopic.name, type: subtopic.type, type_plural: subtopic.type_plural, edit: false }]
+            subtopics = [...subtopics, { id: subtopic.id, name: subtopic.name, type: subtopic.type, type_plural: subtopic.type_plural, edit: false }]
         })
     }
 </script>
@@ -82,28 +89,45 @@
 </Modal>
 
 <Row>
+    {#if !token}
     <Column>
         <h2>Subtopics in `{topic.name}`</h2>
     </Column>
-    {#if session.token}
+    {:else if token}
     <Column>
+        <HeaderOptions bind:item={topic} />
+        <Button
+            style='float:right;'
+            kind='ghost'
+            tooltipPosition='bottom'
+            tooltipAlignment='center'
+            iconDescription='Edit Topic name'
+            size='small' hasIconOnly icon={Edit16} on:click={() => (topic.edit=true)}/>
+        <Button
+            style='float:right;'
+            kind='ghost'
+            tooltipPosition='bottom'
+            tooltipAlignment='center'
+            iconDescription='Add Subtopic'
+            size='small' hasIconOnly icon={Add16} on:click={() => (goto(`add_subtopic/{topic.id}`))}/>
         <Button
             style='float:right;'
             kind='ghost'
             tooltipPosition='bottom'
             tooltipAlignment='center'
             iconDescription='Delete Subtopic'
-            size='small' hasIconOnly icon={Delete16} on:click={() => {delItem=subtopic; delModalOpen=true}}/>
+            size='small' hasIconOnly icon={Delete16} on:click={() => (selfDelModalOpen=true)}/>
     </Column>
     {/if}
 </Row>
 
 {#each subtopics as subtopic}
     <Row>
+        {#if !token}
         <Column lg={3} md={3} sm={2}>
             <Link style='font-size: 1.2em; color: white;' href='subtopic/{subtopic.id}'>{subtopic.name}</Link>
         </Column>
-        {#if $session.token}
+        {:else if token}
             <Column>
                 <Options bind:item={subtopic}/>
                 <Button 
@@ -117,7 +141,7 @@
                     tooltipPosition='bottom'
                     tooltipAlignment='center'
                     iconDescription='Delete Subtopic'
-                    size='small' hasIconOnly icon={Delete16} on:click={() => {delItem=subtopic; delModalOpen=true}}/>
+                    size='small' hasIconOnly icon={Delete16} on:click={() => { delItem={subtopic}; delModalOpen=true}}/>
             </Column>
         {/if}
     </Row>

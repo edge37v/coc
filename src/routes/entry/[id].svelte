@@ -1,17 +1,18 @@
-<script context='module'>
+s<script context='module'>
     import * as api from 'api'
-    export async function preload(page) {
+    export async function preload(page, { token }) {
         let id = page.params.id
         let entry = await api.get(`entries?id=${id}`)
-        return { entry }
+        return { entry, token }
     }
 </script>
 
 <script>
-    export let entry
+    export let entry, token
     import marked from 'marked'
+    import Delete16 from 'carbon-icons-svelte/lib/Delete16'
     import OptionButtons from './OptionButtons.svelte'
-    import { Modal } from 'carbon-components-svelte'
+    import { Button, Row, Column, Modal } from 'carbon-components-svelte'
 
     entry.edit = false
 
@@ -34,18 +35,22 @@
 	modalHeading='Delete Item'
 	primaryButtonText='Confirm'
 	secondaryButtonText='Cancel'
-	on:click:button--primary={() => (del())}
+	on:click:button--primary={() => (delModalOpen=false)}
 	on:click:button--secondary={() => (delModalOpen=false)}
+    on:submit={del}
 >
 	<p>Sure you want to delete this entry?</p>
 </Modal>
 
-<h2>{entry.name}</h2>
 <Row>
     <Column>
-        <h2>Entries in subtopic: {subtopic.name}</h2>
+        <h2>{entry.name}</h2>
+        <span style="font-size: 21px;">{entry.verses.book} {entry.verses.chapter}: {entry.verses.start}</span>
+        {#if entry.verses.end}
+            <span  style="font-size: 21px;"> - {entry.verses.end}</span>
+        {/if}
     </Column>
-    {#if $session.token}
+    {#if token}
     <Column>
         <OptionButtons bind:item={entry}/>
         <Button
@@ -58,11 +63,6 @@
     </Column>
     {/if}
 </Row>
-
-<span style="font-size: 21px;">{entry.verses.book} {entry.verses.chapter}: {entry.verses.start}</span>
-{#if entry.verses.end}
-	<span  style="font-size: 21px;"> - {entry.verses.end}</span>
-{/if}
 
 <br/>
 <div>{@html body}</div>

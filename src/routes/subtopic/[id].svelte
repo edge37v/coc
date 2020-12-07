@@ -30,8 +30,15 @@
 
     delItem.name = ''
 
+    let selfDel = async function(){
+        let res = await api.del(`subtopics?id=${subtopic.id}`, token)
+        if (res.yes) {
+            goto('topics')
+        }
+    }
+
     let del = async function(){
-        api.del(`entries?id=${delItem.id}`, token)
+        let res = await api.del(`entries?id=${delItem.id}`, token)
         if (res.yes) {
             entries = entries.filter(entry => entry != delItem)
         }
@@ -60,7 +67,7 @@
     on:submit={selfDel}
 >
     <p>Sure you want to delete this subtopic:</p>
-    <p>{topic.name}?</p>
+    <p>{subtopic.name}?</p>
     <p>You'll also be deleting all entries under this subtopic</p>
 </Modal>
 

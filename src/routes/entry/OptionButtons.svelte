@@ -2,9 +2,9 @@
 	export let item
 
 	import EditButtons from './EditButtons.svelte'
-	import ItemButtons from './ItemButtons.svelte'
+	import ItemButton from './ItemButton.svelte'
 
-	let current = ItemButtons
+	let current = ItemButton
 
 	$:changeCurrent(item.edit)
 
@@ -12,7 +12,7 @@
 		if (item.edit){
 			current = EditButtons
 		} else {
-			current = ItemButtons
+			current = ItemButton
 		}
 	}
 </script>
