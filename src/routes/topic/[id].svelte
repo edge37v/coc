@@ -94,55 +94,62 @@
         <h2>Subtopics in `{topic.name}`</h2>
     </Column>
     {:else if token}
-    <Column>
-        <HeaderOptions bind:item={topic} />
-        <Button
-            style='float:right;'
-            kind='ghost'
-            tooltipPosition='bottom'
-            tooltipAlignment='center'
-            iconDescription='Edit Topic name'
-            size='small' hasIconOnly icon={Edit16} on:click={() => (topic.edit=true)}/>
-        <Button
-            style='float:right;'
-            kind='ghost'
-            tooltipPosition='bottom'
-            tooltipAlignment='center'
-            iconDescription='Add Subtopic'
-            size='small' hasIconOnly icon={Add16} on:click={() => (goto(`add_subtopic/{topic.id}`))}/>
-        <Button
-            style='float:right;'
-            kind='ghost'
-            tooltipPosition='bottom'
-            tooltipAlignment='center'
-            iconDescription='Delete Subtopic'
-            size='small' hasIconOnly icon={Delete16} on:click={() => (selfDelModalOpen=true)}/>
-    </Column>
+    <HeaderOptions bind:item={topic} />
+    {#if !topic.edit}
+    <Button
+        style='float:right;'
+        kind='ghost'
+        tooltipPosition='bottom'
+        tooltipAlignment='center'
+        iconDescription='Edit Topic name'
+        size='small' hasIconOnly icon={Edit16} on:click={() => (topic.edit=true)}/>
+    {/if}
+    <Button
+        style='float:right;'
+        kind='ghost'
+        tooltipPosition='bottom'
+        tooltipAlignment='center'
+        iconDescription='Add Topic'
+        size='small' hasIconOnly icon={Add16} on:click={() => (goto(`add_subtopic/${topic.id}`))}/>
+    <Button
+        style='float:right;'
+        kind='ghost'
+        tooltipPosition='bottom'
+        tooltipAlignment='center'
+        iconDescription='Delete Topic'
+        size='small' hasIconOnly icon={Delete16} on:click={() => (selfDelModalOpen=true)}/>
     {/if}
 </Row>
 
+<br/>
 {#each subtopics as subtopic}
     <Row>
         {#if !token}
-        <Column lg={3} md={3} sm={2}>
+        <Column max={4} xlg={4} lg={4} md={4} sm={3}>
             <Link style='font-size: 1.2em; color: white;' href='subtopic/{subtopic.id}'>{subtopic.name}</Link>
         </Column>
         {:else if token}
-            <Column>
-                <Options bind:item={subtopic}/>
-                <Button 
-                    kind='ghost'
-                    tooltipPosition='bottom'
-                    tooltipAlignment='center'
-                    iconDescription='Add Entry'
-                    size='small' hasIconOnly icon={Add16} on:click={() => {goto(`add_entry/${subtopic.id}`)}}/>
+            <Options bind:item={subtopic}/>
+            {#if !subtopic.edit}
                 <Button
                     kind='ghost'
                     tooltipPosition='bottom'
                     tooltipAlignment='center'
-                    iconDescription='Delete Subtopic'
-                    size='small' hasIconOnly icon={Delete16} on:click={() => { delItem={subtopic}; delModalOpen=true}}/>
-            </Column>
+                    iconDescription='Edit name'
+                    size='small' hasIconOnly icon={Edit16} on:click={() => (subtopic.edit=true)}/>
+            {/if}
+            <Button 
+                kind='ghost'
+                tooltipPosition='bottom'
+                tooltipAlignment='center'
+                iconDescription='Add Entry'
+                size='small' hasIconOnly icon={Add16} on:click={() => {goto(`add_entry/${subtopic.id}`)}}/>
+            <Button
+                kind='ghost'
+                tooltipPosition='bottom'
+                tooltipAlignment='center'
+                iconDescription='Delete Subtopic'
+                size='small' hasIconOnly icon={Delete16} on:click={() => { delItem={subtopic}; delModalOpen=true}}/>
         {/if}
     </Row>
 {/each}

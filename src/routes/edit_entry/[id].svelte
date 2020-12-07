@@ -1,6 +1,6 @@
 <script context='module'>
     import * as api from 'api'
-    export async function preload(page, token) {
+    export async function preload(page,  { token }) {
         if (!token) {
             this.redirect(302, '/')
         }
@@ -24,14 +24,11 @@
     let errors
 
     let edit = async function(){
-        let name = entry.name
-        let body = entry.body
-        let verses = entry.verses
         let data = { name, body, verses, id }
         let res = await api.put('entries', data, token)
         errors = res.errors
-        if (res.id){
-            goto(`entry/${res.id}`)
+        if (res.yes){
+            goto(`entry/${entry.id}`)
         }
     }
 </script>

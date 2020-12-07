@@ -25,10 +25,10 @@
     tooltipPosition='bottom'
     tooltipAlignment='center'
     iconDescription='Cancel'
-    size='small' hasIconOnly icon={Close16} on:click={() => (goto(`edit_item/${item.id}`))}/>
-<Button
+    size='small' hasIconOnly icon={Close16} on:click={() => (goto(`edit_entry/${item.id}`))}/>
+<!--<Button
     kind='ghost'
     tooltipPosition='bottom'
     tooltipAlignment='center'
     iconDescription='Apply'
-    size='small' hasIconOnly icon={Checkmark16} on:click={edit}/>
+    size='small' hasIconOnly icon={Checkmark16} on:click={edit}/>-->

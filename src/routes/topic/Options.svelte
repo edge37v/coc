@@ -1,5 +1,6 @@
 <script>
 	export let item
+	export let items
 
 	import Edit from './Edit.svelte'
 	import Item from './Item.svelte'
@@ -17,4 +18,4 @@
 	}
 </script>
 
-<svelte:component this={current} bind:item/>
+<svelte:component this={current} bind:items bind:item/>

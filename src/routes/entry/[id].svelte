@@ -1,4 +1,4 @@
-s<script context='module'>
+<script context='module'>
     import * as api from 'api'
     export async function preload(page, { token }) {
         let id = page.params.id
@@ -54,7 +54,6 @@ s<script context='module'>
     <Column>
         <OptionButtons bind:item={entry}/>
         <Button
-            style='float:right;'
             kind='ghost'
             tooltipPosition='bottom'
             tooltipAlignment='center'

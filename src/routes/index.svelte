@@ -3,16 +3,21 @@
     import { stores, goto } from '@sapper/app'
     import Options from '../components/Options.svelte'
     import Add16 from 'carbon-icons-svelte/lib/Add16'
+    import Edit16 from 'carbon-icons-svelte/lib/Edit16'
     import Delete16 from 'carbon-icons-svelte/lib/Delete16'
+    import Checkmark16 from 'carbon-icons-svelte/lib/Checkmark16'
     import { TextInput, Modal, Button, Row, Column, FluidForm, Search, Link, PaginationNav } from 'carbon-components-svelte'
 
     const { session } = stores()
     const token = $session.token
+
+    let adding = false
     
     let search
     let page = 1
     let total = 0
     let topics = []
+    let newTopics = []
 
     $:get_topics(page)
 
@@ -20,6 +25,10 @@
     let delModalOpen = false
 
     delItem.name = ''
+
+    let addToList = function(){
+        topics = [...topics, { name, type: 'topic', type_plural: 'topics', edit: true, isNew: true }]
+    }
 
     let del = async function(){
         let res = await api.del(`topics?id=${delItem.id}`, token)
@@ -37,7 +46,7 @@
         let res = await api.get(`topics/${page}`)
         total = res.total_pages
         res.data.forEach((topic) => {
-            topics = [...topics, { id: topic.id, name: topic.name, type: topic.type, type_plural: topic.type_plural, edit: false }]
+            topics = [...topics, { id: topic.id, name: topic.name, type: 'topic', type_plural: 'topics', edit: false }]
         })
     }
 </script>
@@ -58,20 +67,23 @@
     <p>You'll be deleting all subtopics under this topic, and all entries under those subtopics</p>
 </Modal>
 
-<h2>Topics</h2>
-<!--<Row>
-    <Column>
+<Row>
+    <Column max={5} xlg={5} lg={5} md={5} sm={5}>
         <h2>Topics</h2>
     </Column>
+    {#if $session.token}
     <Column>
+        {#if !adding}
         <Button
-                kind='ghost'
-                tooltipPosition='bottom'
-                tooltipAlignment='center'
-                iconDescription='Add Topic'
-                size='small' hasIconOnly icon={Add16} on:click={() => {delItem = topic; delModalOpen=true}}/>
+            kind='ghost'
+            tooltipPosition='bottom'
+            tooltipAlignment='center'
+            iconDescription='Add Topic'
+            size='small' hasIconOnly icon={Add16} on:click={() => {addToList(); adding=true}}/>
+        {/if}
     </Column>
-</Row>-->
+    {/if}
+</Row>
 
 <!--<FluidForm>
     <Search bind:value={search}/>
@@ -81,25 +93,33 @@
 {#each topics as topic}
     <Row>
         {#if !$session.token}
-            <Column lg={2} md={2} sm={2}>
+            <Column max={4} xlg={4} lg={4} md={4} sm={4}>
                 <Link style='font-size: 1.2em; color: white;' href='topic/{topic.id}'>{topic.name}</Link>
             </Column>
         {:else if $session.token}
-            <Options bind:item={topic}/>
+            <Options bind:adding bind:items={topics} bind:item={topic}/>
+            {#if !topic.edit}
             <Button
                 kind='ghost'
                 tooltipPosition='bottom'
                 tooltipAlignment='center'
-                iconDescription='Add Subtopic'
-                size='small' hasIconOnly icon={Add16} on:click={() => (goto(`add_subtopic/${topic.id}`))}/>
-            <Button
-                kind='ghost'
-                tooltipPosition='bottom'
-                tooltipAlignment='center'
-                iconDescription='Delete Topic'
-                size='small' hasIconOnly icon={Delete16} on:click={() => {delItem = topic; delModalOpen=true}}/>
+                iconDescription='Edit'
+                size='small' hasIconOnly icon={Edit16} on:click={() => {topic.edit = true}}/>
+            {/if}
+            {#if !topic.isNew}
+                <Button
+                    kind='ghost'
+                    tooltipPosition='bottom'
+                    tooltipAlignment='center'
+                    iconDescription='Add Subtopic'
+                    size='small' hasIconOnly icon={Add16} on:click={() => (goto(`add_subtopic/${topic.id}`))}/>
+                <Button
+                    kind='ghost'
+                    tooltipPosition='bottom'
+                    tooltipAlignment='center'
+                    iconDescription='Delete Topic'
+                    size='small' hasIconOnly icon={Delete16} on:click={() => {delItem = topic; delModalOpen=true}}/>
+            {/if}
         {/if}
     </Row>
 {/each}
-
-<PaginationNav bind:page={page} shown={3} loop total={total}/>

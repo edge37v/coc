@@ -62,8 +62,6 @@
   <div slot='default'>
     <SideNavItems>
         <SideNavLink text='Logout' href='' on:click={logout}/>
-        <SideNavLink text='Add Topic' href='add_topic'/>
-        <SideNavLink text='Topics' href='topics'/>
     </SideNavItems>
   </div>
 </SideNav>

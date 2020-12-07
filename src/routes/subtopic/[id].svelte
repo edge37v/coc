@@ -11,13 +11,16 @@
     import * as api from 'api'
     import { stores, goto } from '@sapper/app'
     import Options from './Options.svelte'
+    import HeaderOptions from './HeaderOptions.svelte'
     import Edit16 from 'carbon-icons-svelte/lib/Edit16'
+    import Add16 from 'carbon-icons-svelte/lib/Add16'
     import Delete16 from 'carbon-icons-svelte/lib/Delete16'
     import { Link, Button, Modal, Row, Column, PaginationNav } from 'carbon-components-svelte'
 
     const { session } = stores()
     const token = $session.stores
 
+    let total_items
     let entries = []
     let total = 0
     let page = 1
@@ -25,7 +28,7 @@
 
     let selfDelModalOpen = false
 
-    let delItem
+    let delItem = {}
     let delModalOpen = false
 
     delItem.name = ''
@@ -48,7 +51,9 @@
 
     let get_entries = async function() {
     	res = await api.get(`entries/from_subtopic?id=${subtopic.id}&page=${page}`)
+        console.log(res)
     	total = res.total_pages
+        total_items = res.total_items
     	res.data.forEach((entry) => {
             entries = [...entries, { id: entry.id, name: entry.name, type: entry.type, type_plural: entry.type_plural, edit: false }]
         })
@@ -87,19 +92,35 @@
 </Modal>
 
 <Row>
+    {#if !$session.token}
     <Column>
         <h2>Entries in subtopic: {subtopic.name}</h2>
     </Column>
-    {#if $session.token}
-    <Column>
-        <Button
-            style='float:right;'
-            kind='ghost'
-            tooltipPosition='bottom'
-            tooltipAlignment='center'
-            iconDescription='Delete Subtopic'
-            size='small' hasIconOnly icon={Delete16} on:click={() => {delItem=subtopic; delModalOpen=true}}/>
-    </Column>
+    {:else if $session.token}
+    <HeaderOptions bind:item={subtopic} />
+    {#if !subtopic.edit}
+    <Button
+        style='float:right;'
+        kind='ghost'
+        tooltipPosition='bottom'
+        tooltipAlignment='center'
+        iconDescription='Edit Subtopic name'
+        size='small' hasIconOnly icon={Edit16} on:click={() => (subtopic.edit=true)}/>
+    {/if}
+    <Button
+        style='float:right;'
+        kind='ghost'
+        tooltipPosition='bottom'
+        tooltipAlignment='center'
+        iconDescription='Add Entry'
+        size='small' hasIconOnly icon={Add16} on:click={() => (goto(`add_entry/${subtopic.id}`))}/>
+    <Button
+        style='float:right;'
+        kind='ghost'
+        tooltipPosition='bottom'
+        tooltipAlignment='center'
+        iconDescription='Delete Subtopic'
+        size='small' hasIconOnly icon={Delete16} on:click={() => (selfDelModalOpen=true)}/>
     {/if}
 </Row>
 
@@ -125,14 +146,12 @@
             </Column>
         {/if}
     </Row>
-	<p>{entry.name}<p/>
-	<p>{entry.verses.book} {entry.verses.chapter}: {entry.verses.start}{#if entry.verses.end} {entry.verses.end}{/if}<p/>
+	<!--<p>{entry.verses.book} {entry.verses.chapter}: {entry.verses.start}{#if entry.verses.end} {entry.verses.end}{/if}<p/>-->
 {/each}
 
-{#if total < 1}
+{#if total_items < 1}
     <br/>
     <p>There don't seem to be any entries for that subtopic</p>
-{/if}
-{#if total > 37}
+{:else if total_items > 37}
     <PaginationNav bind:page={page} loop total={total}/>
 {/if}

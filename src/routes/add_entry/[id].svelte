@@ -1,6 +1,6 @@
 <script context='module'>
     import * as api from 'api'
-    export async function preload(page, token) {
+    export async function preload(page, { token }) {
         if (!token) {
             this.redirect(302, '/')
         }

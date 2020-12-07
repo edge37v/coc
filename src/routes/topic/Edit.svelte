@@ -1,5 +1,6 @@
 <script>
 	export let item
+    export let items
 	import * as api from 'api'
 	import { stores } from '@sapper/app'
     import Close16 from 'carbon-icons-svelte/lib/Close16'
@@ -9,32 +10,59 @@
 	const { session } = stores()
 	const token = $session.token
 
+    let remove = function(){
+        items = items.filter(item => item != item)
+    }
+
+    let add = async function(){
+        let data = { name: item.name }
+        let res = await api.post(`${item.type_plural}`, data, token)
+        if (res.id){
+            item.isNew = null
+            item.edit = false
+        }
+    }
+
 	let edit = async function(){
-        let id = item.id
-        let name = item.name
-        let data = { id, name}
-        let res = await api.put(`${item.type}`, data, token)
+        let data = { id: item.id, name: item.name}
+        let res = await api.put(`${item.type_plural}`, data, token)
         if (res.yes){
             item.edit = false
         }
     }
 </script>
 
-<Column max={3} xlg={3} lg={3} md={3} sm={3}>
+<Column max={4} xlg={4} lg={4} md={4} sm={3}>
 	<Form on:submit={edit}>
 		<TextInput bind:value={item.name}/>
 	</Form>
 </Column>
 
-<Button
-    kind='ghost'
-    tooltipPosition='bottom'
-    tooltipAlignment='center'
-    iconDescription='Cancel'
-    size='small' hasIconOnly icon={Close16} on:click={() => (item.edit = false)}/>
-<Button
-    kind='ghost'
-    tooltipPosition='bottom'
-    tooltipAlignment='center'
-    iconDescription='Apply'
-    size='small' hasIconOnly icon={Checkmark16} on:click={edit}/>
+{#if item.isNew}
+    <Button
+        kind='ghost'
+        tooltipPosition='bottom'
+        tooltipAlignment='center'
+        iconDescription='Cancel'
+        size='small' hasIconOnly icon={Close16} on:click={remove}/>
+    <Button
+        kind='ghost'
+        tooltipPosition='bottom'
+        tooltipAlignment='center'
+        iconDescription='Apply'
+        size='small' hasIconOnly icon={Checkmark16} on:click={add}/>
+
+{:else if !item.isNew}
+    <Button
+        kind='ghost'
+        tooltipPosition='bottom'
+        tooltipAlignment='center'
+        iconDescription='Cancel'
+        size='small' hasIconOnly icon={Close16} on:click={() => {item.edit = false}}/>
+    <Button
+        kind='ghost'
+        tooltipPosition='bottom'
+        tooltipAlignment='center'
+        iconDescription='Apply'
+        size='small' hasIconOnly icon={Checkmark16} on:click={edit}/>
+{/if}
