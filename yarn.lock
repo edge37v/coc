@@ -1237,10 +1237,10 @@ caniuse-lite@^1.0.30001157:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001157.tgz#2d11aaeb239b340bc1aa730eca18a37fdb07a9ab"
   integrity sha512-gOerH9Wz2IRZ2ZPdMfBvyOi3cjaz4O4dgNwPGzx8EhqAs4+2IL/O+fJsbt+znSigujoZG8bVcIAUM/I/E5K3MA==
 
-carbon-components-svelte@0.23.1:
-  version "0.23.1"
-  resolved "https://registry.yarnpkg.com/carbon-components-svelte/-/carbon-components-svelte-0.23.1.tgz#573aa5e041d5a20a43da98a0bdfb5a9f2abbe1e2"
-  integrity sha512-2ZmJvTmgRjtyrCnYa64s/SiBclScmz78HYv8wehgURxWduiEKfugTf7lnQMHtuJseFgr7Ak0NfMCSmfjI6eYxA==
+carbon-components-svelte@0.25.1:
+  version "0.25.1"
+  resolved "https://registry.yarnpkg.com/carbon-components-svelte/-/carbon-components-svelte-0.25.1.tgz#f8c7fe78a5ae3c89ad5f5c94022f77c0313524d4"
+  integrity sha512-upIUiqMzKuKGQWOczVIQmBooQtjcIdmZMIhD5rXeaeO8jomgXH6cy7ohMeHRWJ6e06a+zeD+PI+Lclefa9CZuw==
   dependencies:
     carbon-icons-svelte "^10.21.0"
     flatpickr "4.6.3"
@@ -2241,7 +2241,7 @@ magic-string@^0.25.2, magic-string@^0.25.7:
   dependencies:
     sourcemap-codec "^1.4.4"
 
-marked@^1.2.5:
+marked@1.2.5:
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/marked/-/marked-1.2.5.tgz#a44b31f2a0b8b5bfd610f00d55d1952d1ac1dfdb"
   integrity sha512-2AlqgYnVPOc9WDyWu7S5DJaEZsfk6dNh/neatQ3IHUW4QLutM/VPSH9lG7bif+XjFWc9K9XR3QvR+fXuECmfdA==

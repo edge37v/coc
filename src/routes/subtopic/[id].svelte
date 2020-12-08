@@ -50,10 +50,11 @@
     $:get_entries(page)
 
     let get_entries = async function() {
+        console.log(page)
     	res = await api.get(`entries/from_subtopic?id=${subtopic.id}&page=${page}`)
-        console.log(res)
     	total = res.total_pages
         total_items = res.total_items
+        entries = []
     	res.data.forEach((entry) => {
             entries = [...entries, { id: entry.id, name: entry.name, type: entry.type, type_plural: entry.type_plural, edit: false }]
         })
@@ -124,6 +125,7 @@
     {/if}
 </Row>
 
+<br/>
 {#each entries as entry}
     <Row>
         <Column lg={3} md={3} sm={2}>
@@ -151,7 +153,7 @@
 
 {#if total_items < 1}
     <br/>
-    <p>There don't seem to be any entries for that subtopic</p>
+    <p>There don't seem to be any entries for this subtopic</p>
 {:else if total_items > 37}
     <PaginationNav bind:page={page} loop total={total}/>
 {/if}

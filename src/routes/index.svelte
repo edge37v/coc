@@ -13,9 +13,10 @@
 
     let adding = false
     
+    let total_items    
+    let total_pages = 0
     let search
     let page = 1
-    let total = 0
     let topics = []
     let newTopics = []
 
@@ -44,7 +45,8 @@
 
     let get_topics = async function(){
         let res = await api.get(`topics/${page}`)
-        total = res.total_pages
+        total_pages = res.total_pages
+        topics = []
         res.data.forEach((topic) => {
             topics = [...topics, { id: topic.id, name: topic.name, type: 'topic', type_plural: 'topics', edit: false }]
         })
@@ -123,3 +125,10 @@
         {/if}
     </Row>
 {/each}
+
+{#if total_items < 1}
+    <br/>
+    <p>There don't seem to be any topics</p>
+{:else if total_items > 37}
+    <PaginationNav bind:page={page} loop total={total_pages}/>
+{/if}

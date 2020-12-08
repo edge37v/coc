@@ -19,8 +19,9 @@
 
     topic.edit = false
 
+    let total_items
+    let total_pages = 0
     let subtopics = []
-    let total = 0
     let page = 1
     let res
 
@@ -50,7 +51,9 @@
 
     let get_subtopics = async function(){
         res = await api.get(`subtopics/from_topic?id=${topic.id}&page=${page}`)
-        total = res.total_pages
+        total_pages = res.total_pages
+        total_items = res.total_items
+        subtopics = []
         res.data.forEach((subtopic) => {
             subtopics = [...subtopics, { id: subtopic.id, name: subtopic.name, type: subtopic.type, type_plural: subtopic.type_plural, edit: false }]
         })
@@ -154,4 +157,9 @@
     </Row>
 {/each}
 
-<PaginationNav bind:page={page} shown={3} loop total={total}/>
+{#if total_items < 1}
+    <br/>
+    <p>There don't seem to be any entries for this topic</p>
+{:else if total_items > 37}
+    <PaginationNav bind:page={page} loop total={total_pages}/>
+{/if}
